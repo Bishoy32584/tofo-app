@@ -1,0 +1,149 @@
+.chat-page {
+  display: grid;
+  grid-template-rows: 60px 1fr 70px;
+  height: 100vh;
+  background: linear-gradient(to bottom, #1a1a1a, #000);
+  color: #fff;
+}
+
+/* Header */
+.chat-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  border-bottom: 1px solid #222;
+  background: #111;
+}
+
+.chat-header button {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 20px;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+.header-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6c5ce7, #4834d4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.chat-messages {
+  padding: 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Bubbles */
+.bubble {
+  max-width: 75%;
+  padding: 10px 14px;
+  border-radius: 18px;
+  animation: fadeIn 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+}
+
+.sent {
+  align-self: flex-start;
+  background: #6c5ce7;
+}
+
+.received {
+  align-self: flex-end;
+  background: #2a2a2a;
+}
+
+.time {
+  font-size: 10px;
+  margin-top: 4px;
+  opacity: 0.7;
+  align-self: flex-end;
+}
+
+/* Input */
+.chat-input {
+  display: flex;
+  padding: 10px;
+  background: #111;
+  border-top: 1px solid #222;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 12px;
+  border-radius: 25px;
+  border: none;
+  background: #2a2a2a;
+  color: #fff;
+  outline: none;
+}
+
+.chat-input button {
+  margin-right: 10px;
+  border: none;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  background: #6c5ce7;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* Empty */
+.empty-chat {
+  text-align: center;
+  margin-top: 40px;
+  color: #777;
+}
+
+/* Profile */
+.profile-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.profile-box {
+  text-align: center;
+}
+
+.big-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: #6c5ce7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  margin: 0 auto 15px;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}

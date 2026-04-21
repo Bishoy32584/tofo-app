@@ -1,0 +1,344 @@
+/* ==========================================================================
+   Fonts (احترافي)
+   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600&family=Tajawal:wght@400;500&display=swap');
+
+/* ==========================================================================
+   General & Reset
+   ========================================================================== */
+
+body {
+  font-family: 'Cairo', 'Tajawal', sans-serif;
+  background: #15002B;
+  color: #E6E1FF;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+.home-container {
+  padding: 16px;
+  padding-bottom: 90px;
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+/* ==========================================================================
+   🔥 Post Composer
+   ========================================================================== */
+
+.post-composer {
+  background: linear-gradient(145deg, #1A0033, #130028);
+  border-radius: 20px;
+  padding: 16px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(124, 58, 237, 0.12);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+  transition: 0.2s;
+}
+
+.post-composer:focus-within {
+  border-color: rgba(124, 58, 237, 0.35);
+  box-shadow: 0 8px 28px rgba(124, 58, 237, 0.25);
+}
+
+/* textarea */
+
+.composer-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  min-height: 70px;
+  font-size: 15px;
+  color: #F1EDFF;
+  line-height: 1.6;
+}
+
+.composer-input::placeholder {
+  color: #9F94D6;
+}
+
+/* toggle */
+
+.anonymous-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.hat-icon {
+  font-size: 18px;
+  opacity: 0.85;
+}
+
+.anonymous-text {
+  font-size: 13px;
+  color: #BEB3FF;
+  font-weight: 500;
+}
+
+/* switch */
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 22px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: #2a1f4a;
+  border-radius: 999px;
+  transition: 0.25s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 2px;
+  top: 2px;
+  background: white;
+  border-radius: 50%;
+  transition: 0.25s;
+}
+
+input:checked + .slider {
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+/* ==========================================================================
+   BUTTON (Safe upgrade only)
+   ========================================================================== */
+
+.post-btn {
+  margin-top: 14px;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
+  color: white;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.post-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(124, 58, 237, 0.45);
+}
+
+.post-btn:active {
+  transform: scale(0.96);
+}
+
+.post-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ==========================================================================
+   📎 FILE UPLOAD (ONLY ADDITION - NO IMPACT)
+   ========================================================================== */
+
+.file-upload-wrapper {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.file-upload-wrapper input[type="file"] {
+  display: none;
+}
+
+.upload-btn {
+  background: #241c3d;
+  border: 1px solid #3a2d6b;
+  border-radius: 12px;
+  padding: 10px 14px;
+  color: #cfc6ff;
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.2s;
+  white-space: nowrap;
+}
+
+.upload-btn:hover {
+  background: #2d2350;
+}
+
+.file-names {
+  font-size: 12px;
+  color: #9F94D6;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+/* ==========================================================================
+   FEED (UNCHANGED)
+   ========================================================================== */
+
+.feed {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ==========================================================================
+   POST CARD (FULL RESTORED - NO LOSS)
+   ========================================================================== */
+
+.post-card {
+  background: linear-gradient(145deg, #1A0033, #130028);
+  border-radius: 20px;
+  padding: 16px;
+  border: 1px solid rgba(124, 58, 237, 0.10);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.35);
+  transition: 0.2s;
+}
+
+.post-card:hover {
+  transform: translateY(-2px);
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.mood-emoji.small {
+  font-size: 18px;
+  opacity: 0.75;
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+
+.user-info-right h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.time {
+  font-size: 12px;
+  color: #9F94D6;
+}
+
+.post-menu-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #AFA4FF;
+  cursor: pointer;
+}
+
+.post-menu-dropdown {
+  position: absolute;
+  right: 0;
+  top: 36px;
+  background: #1C0636;
+  border-radius: 12px;
+  border: 1px solid #32285a;
+}
+
+.post-menu-dropdown button {
+  padding: 10px 14px;
+  color: #ddd;
+}
+
+.post-content {
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 8px 0 12px;
+  color: #F1EDFF;
+}
+
+.post-media img,
+.post-media video {
+  margin-top: 8px;
+  width: 100%;
+  border-radius: 14px;
+}
+
+.post-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.send-message-btn {
+  flex: 1;
+  border: 1px solid #7c3aed;
+  background: transparent;
+  color: #BEB3FF;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+/* ✅ MODIFIED ONLY HERE */
+.action-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #241c3d;
+  color: #cfc6ff;
+  border: none;
+  font-size: 16px;
+  transition: 0.2s;
+}
+
+.action-btn:hover {
+  transform: scale(1.1);
+  background: #2d2350;
+}
+
+/* ==========================================================================
+   STATES
+   ========================================================================== */
+
+.loading,
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #9F94D6;
+  font-size: 14px;
+}
