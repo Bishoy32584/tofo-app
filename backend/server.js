@@ -21,6 +21,12 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const cookieParser = require("cookie-parser");
 
+// =====================
+// 🔥 ADDED (REDIS SOCKET ADAPTER)
+// =====================
+const { createAdapter } = require("@socket.io/redis-adapter");
+const { createClient } = require("redis");
+
 // Routes
 const userRoutes = require("./routes/userRoutes");
 const messageRoutes = require("./routes/messageRoutes");
@@ -41,11 +47,11 @@ const Conversation = require("./models/Conversation");
 const cleanupOrphans = require("./cleanup");
 
 // =====================
-// 🔥 REQUIRED ADDITION ONLY
+// REQUIRED ADDITION ONLY
 // =====================
 const Post = require("./models/Post");
 
-// ✅ REQUIRED FOR LOAD GUARD (موجود في المشروع أصلاً)
+// Redis cache (existing)
 const cache = require("./redisClient");
 
 const app = express();
@@ -59,7 +65,7 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ verify: (req, res, buf) => { req.rawBody = buf.toString("utf8"); } }));
 
 // =========================
-// 🔥 LOAD GUARD (ADDED ONLY)
+// 🔥 LOAD GUARD
 // =========================
 const MAX_ACTIVE_USERS = 300;
 
@@ -95,7 +101,7 @@ app.use(cookieParser());
 app.use(helmet());
 
 // =========================
-// STATIC FILES (UPLOADS)
+// STATIC FILES
 // =========================
 app.use("/uploads", express.static("uploads"));
 
@@ -121,14 +127,14 @@ app.use("/api/conversations", conversationRoutes);
 app.use("/api/onboarding", onboardingRoutes);
 
 // =================
-// Root Test
+// Root
 // =================
 app.get("/", (req, res) => {
   res.send("ROOT WORKING FROM SERVER.JS");
 });
 
 // =================
-// 404 handler
+// 404
 // =================
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
@@ -143,15 +149,33 @@ app.use((err, req, res, next) => {
 });
 
 // =================
-// Create HTTP Server
+// HTTP SERVER
 // =================
 const server = http.createServer(app);
 
 // =================
-// Socket.IO
+// SOCKET.IO
 // =================
-const io = new Server(server, { cors: { origin: process.env.SOCKET_ORIGIN || "*" } });
+const io = new Server(server, {
+  cors: { origin: process.env.SOCKET_ORIGIN || "*" }
+});
 
+// =====================
+// 🔥 REDIS ADAPTER INIT (ADDED)
+// =====================
+const pubClient = createClient({ url: process.env.REDIS_URL });
+const subClient = pubClient.duplicate();
+
+(async () => {
+  await pubClient.connect();
+  await subClient.connect();
+
+  io.adapter(createAdapter(pubClient, subClient));
+
+  console.log("✅ Redis Socket Adapter Connected");
+})();
+
+// =================
 NotificationService.setSocketIO(io);
 
 // =================
@@ -174,7 +198,7 @@ io.use((socket, next) => {
 });
 
 // =================
-// Socket Connection
+// SOCKET LOGIC
 // =================
 io.on("connection", (socket) => {
 
@@ -182,9 +206,6 @@ io.on("connection", (socket) => {
     socket.join(socket.userId);
   }
 
-  // =====================================================
-  // 🔥 UPDATED sendMessage (ONLY THIS PART CHANGED)
-  // =====================================================
   socket.on("sendMessage", async ({ receiver, content, chatId, tempId }) => {
     try {
       const sender = socket.userId;
@@ -225,9 +246,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  // =====================================================
-  // 🔥 DELIVERY EVENT (ADDED)
-  // =====================================================
   socket.on("messageDelivered", async ({ messageId }) => {
     await Message.findByIdAndUpdate(messageId, {
       status: "DELIVERED",
@@ -235,12 +253,7 @@ io.on("connection", (socket) => {
     });
   });
 
-  // =====================================================
-  // 🔥 SEEN EVENT (ADDED)
-  // =====================================================
   socket.on("messageSeen", async ({ messageId, chatWith }) => {
-    const userId = socket.userId;
-
     await Message.findByIdAndUpdate(messageId, {
       status: "SEEN",
       seenAt: new Date(),
@@ -254,7 +267,7 @@ io.on("connection", (socket) => {
 });
 
 // =================
-// Cleanup Job
+// Cleanup
 // =================
 setInterval(async () => {
   try {
@@ -264,9 +277,7 @@ setInterval(async () => {
   }
 }, 60 * 60 * 1000);
 
-// =====================
-// TEST LOOP
-// =====================
+// =================
 setInterval(() => {
   console.log("🧪 TEST: server is alive at", new Date().toISOString());
 }, 5000);

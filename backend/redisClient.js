@@ -1,19 +1,60 @@
-const cache = new Map();
+const { createClient } = require("redis");
 
-function set(key, value, ttlSeconds = 10) {
-  cache.set(key, value);
+// =========================
+// Redis Client Init
+// =========================
+const client = createClient({
+  url: process.env.REDIS_URL
+});
 
-  setTimeout(() => {
-    cache.delete(key);
-  }, ttlSeconds * 1000);
+client.on("error", (err) => {
+  console.error("Redis error:", err);
+});
+
+(async () => {
+  await client.connect();
+  console.log("✅ Redis connected");
+})();
+
+// =========================
+// Compatibility Layer (same API as Map version)
+// =========================
+
+// set(key, value, ttlSeconds)
+async function set(key, value, ttlSeconds = 10) {
+  try {
+    const serialized = JSON.stringify(value);
+
+    if (ttlSeconds) {
+      await client.set(key, serialized, {
+        EX: ttlSeconds
+      });
+    } else {
+      await client.set(key, serialized);
+    }
+  } catch (err) {
+    console.error("Redis SET error:", err);
+  }
 }
 
-function get(key) {
-  return cache.get(key);
+// get(key)
+async function get(key) {
+  try {
+    const data = await client.get(key);
+    return data ? JSON.parse(data) : null;
+  } catch (err) {
+    console.error("Redis GET error:", err);
+    return null;
+  }
 }
 
-function del(key) {
-  cache.delete(key);
+// del(key)
+async function del(key) {
+  try {
+    await client.del(key);
+  } catch (err) {
+    console.error("Redis DEL error:", err);
+  }
 }
 
 module.exports = {
