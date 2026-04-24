@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Home.css";
-import axios from "axios";
 import socket from "../socket";
-import { apiRequest, getAccessToken } from "../utils/authManager";
+import { apiRequest } from "../utils/authManager";
 
 import PostCard from "../components/PostCard";
 

@@ -21,12 +21,6 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const cookieParser = require("cookie-parser");
 
-// =====================
-// 🔥 ADDED (REDIS SOCKET ADAPTER)
-// =====================
-const { createAdapter } = require("@socket.io/redis-adapter");
-const { createClient } = require("redis");
-
 // Routes
 const userRoutes = require("./routes/userRoutes");
 const messageRoutes = require("./routes/messageRoutes");
@@ -61,7 +55,10 @@ console.log("SERVER FILE VERSION: REALTIME + MONGO ACTIVE");
 const PORT = process.env.PORT || 5000;
 
 // 🔹 CORS
-app.use(cors({ origin: true, credentials: true }));
+app.use(cors({
+  origin: ["https://tofo-app-1aok-git-main-b85892710-3254s-projects.vercel.app"],
+  credentials: true
+}));
 app.use(express.json({ verify: (req, res, buf) => { req.rawBody = buf.toString("utf8"); } }));
 
 // =========================
@@ -154,28 +151,12 @@ app.use((err, req, res, next) => {
 const server = http.createServer(app);
 
 // =================
-// SOCKET.IO
+// SOCKET.IO (NO REDIS ADAPTER)
 // =================
 const io = new Server(server, {
   cors: { origin: process.env.SOCKET_ORIGIN || "*" }
 });
 
-// =====================
-// 🔥 REDIS ADAPTER INIT (ADDED)
-// =====================
-const pubClient = createClient({ url: process.env.REDIS_URL });
-const subClient = pubClient.duplicate();
-
-(async () => {
-  await pubClient.connect();
-  await subClient.connect();
-
-  io.adapter(createAdapter(pubClient, subClient));
-
-  console.log("✅ Redis Socket Adapter Connected");
-})();
-
-// =================
 NotificationService.setSocketIO(io);
 
 // =================

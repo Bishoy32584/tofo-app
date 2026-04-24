@@ -29,8 +29,7 @@ function App() {
   const userLang = navigator.language || navigator.userLanguage;
   const lang = userLang.startsWith("ar") ? "ar" : "en";
 
-  // ✅ STEP 5 — translations instance
-  const t = getTranslations(lang);
+  // ❌ تم حذف المتغير t لأنه غير مستخدم
 
   // ✅ STEP 7 — RTL support
   document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";

@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "@socket.io/redis-adapter": "^8.3.0",
     "accepts": "^2.0.0",
     "argon2": "^0.44.0",
     "axios": "^1.13.6",
@@ -67,6 +68,7 @@
     "qs": "^6.15.0",
     "range-parser": "^1.2.1",
     "raw-body": "^3.0.2",
+    "redis": "^5.12.1",
     "router": "^2.2.0",
     "safer-buffer": "^2.1.2",
     "send": "^1.2.1",
