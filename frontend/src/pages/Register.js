@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiRequest } from "../utils/authManager";
 
 function Register() {
   const [username, setUsername] = useState("");
@@ -32,18 +33,17 @@ function Register() {
         formData.append("profileImage", profileImage);
       }
 
-      const res = await fetch("http://localhost:5000/api/auth/register", {
+      const res = await apiRequest({
         method: "POST",
-        body: formData,
+        url: "/api/auth/register",
+        data: formData,
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
       });
 
-      const data = await res.json();
+      const data = res.data;
 
-      if (!res.ok) {
-        throw new Error(data.message || "Registration failed");
-      }
-
-      // بعد التسجيل: روح login أو home حسب تصميمك
       navigate("/login");
 
     } catch (err) {

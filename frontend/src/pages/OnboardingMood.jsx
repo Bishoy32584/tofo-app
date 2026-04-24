@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiRequest } from "../utils/authManager";
 
 const moods = [
   { key: "happy", label: "سعيد 😊" },
@@ -20,13 +21,10 @@ export default function OnboardingMood() {
   const sendMood = async (mood, skipped = false) => {
     setLoading(true);
 
-    await fetch("http://localhost:5000/api/onboarding/mood", {
+    await apiRequest({
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: localStorage.getItem("accessToken")
-      },
-      body: JSON.stringify({ mood, skipped })
+      url: "/api/onboarding/mood",
+      data: { mood, skipped }
     });
 
     navigate("/");

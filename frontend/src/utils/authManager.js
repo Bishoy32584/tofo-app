@@ -3,7 +3,7 @@
 import axios from "axios";
 import socket from "../socket";
 
-const API = "http://localhost:5000";
+const API = "https://tofo-app-production.up.railway.app";
 
 // =========================
 // Token التحكم

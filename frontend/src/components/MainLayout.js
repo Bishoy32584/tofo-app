@@ -30,7 +30,7 @@ function MainLayout({ notifications: propNotifications }) {
   useEffect(() => {
     const fetchUnread = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/conversations", {
+        const res = await fetch("https://tofo-app-production.up.railway.app/api/conversations", {
           headers: {
             Authorization: "Bearer " + localStorage.getItem("accessToken")
           }
@@ -61,7 +61,7 @@ function MainLayout({ notifications: propNotifications }) {
   // -----------------------------
   useEffect(() => {
     if (location.pathname === "/notifications") {
-      fetch("http://localhost:5000/api/notifications/mark-read", {
+      fetch("https://tofo-app-production.up.railway.app/api/notifications/mark-read", {
         method: "PATCH",
         headers: { Authorization: "Bearer " + localStorage.getItem("accessToken") }
       })

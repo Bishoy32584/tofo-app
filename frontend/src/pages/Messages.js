@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiRequest } from "../utils/authManager";
 import "./Messages.css";
 
 function Messages() {
@@ -10,14 +11,12 @@ function Messages() {
   useEffect(() => {
     const fetchConversations = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/conversations", {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
+        const res = await apiRequest({
+          method: "GET",
+          url: "/api/conversations"
         });
 
-        const data = await res.json();
+        const data = res.data;
 
         if (Array.isArray(data)) {
           const formatted = data.map((conv) => {

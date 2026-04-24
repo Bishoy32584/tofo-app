@@ -21,8 +21,10 @@ const app = express();
 // ========================
 // Middleware
 // ========================
+const CLIENT_URL = process.env.CLIENT_URL || "https://tofo-app-1aok-git-main-b85892710-3254s-projects.vercel.app";
+
 app.use(cors({
-  origin: process.env.CLIENT_URL,
+  origin: CLIENT_URL,
   credentials: true
 }));
 
@@ -62,7 +64,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL,
+    origin: CLIENT_URL,
     credentials: true
   }
 });
@@ -91,5 +93,5 @@ io.on("connection", (socket) => {
 const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on PORT: ${PORT}`);
 });

@@ -13,7 +13,7 @@ const moods = [
   { text: "حيرة", emoji: "🤷‍♂️" }
 ];
 
-const API = "http://localhost:5000";
+const API = "https://tofo-app-production.up.railway.app";
 
 const Home = () => {
   const [posts, setPosts] = useState([]);

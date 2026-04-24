@@ -1,7 +1,7 @@
 export async function refreshAccessToken() {
   try {
 
-    const res = await fetch("http://localhost:5000/api/auth/refresh-token", {
+    const res = await fetch("https://tofo-app-production.up.railway.app/api/auth/refresh-token", {
       method: "POST",
       credentials: "include"
     });

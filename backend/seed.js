@@ -1,9 +1,11 @@
 const axios = require("axios");
 
-const API = "http://localhost:5000/api";
+const API =
+  process.env.NODE_ENV === "production"
+    ? "https://tofo-app-production.up.railway.app/api"
+    : "http://localhost:5000/api";
 
-// ⚠️ حط توكن صحيح هنا
-const TOKEN = "PASTE_YOUR_ACCESS_TOKEN_HERE";
+const TOKEN = process.env.TOKEN;
 
 const api = axios.create({
   baseURL: API,

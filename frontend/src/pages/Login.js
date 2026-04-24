@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { setAccessToken, notifySocket } from "../utils/authManager"; // ✅ إضافة notifySocket فقط
+import { setAccessToken, notifySocket, apiRequest } from "../utils/authManager";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -11,27 +11,20 @@ function Login() {
   const handleLogin = async () => {
     setError(null);
 
-    // ✅ سطرين الاختبار فقط
     console.log("EMAIL:", email);
     console.log("PASSWORD:", password);
 
     try {
-      // ✅ التعديل الوحيد: تنظيف القيم من المسافات
       const cleanEmail = email.trim();
       const cleanPassword = password.trim();
 
-      const res = await fetch("http://localhost:5000/api/auth/login", {
+      const res = await apiRequest({
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ email: cleanEmail, password: cleanPassword }),
+        url: "/api/auth/login",
+        data: { email: cleanEmail, password: cleanPassword }
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || "خطأ في تسجيل الدخول");
-      }
+      const data = res.data;
 
       setAccessToken(data.accessToken);
 
@@ -42,7 +35,7 @@ function Login() {
       navigate("/onboarding");
 
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || err.message);
     }
   };
 
@@ -70,7 +63,6 @@ function Login() {
         تسجيل الدخول
       </button>
 
-      {/* ✅ ADDED ONLY (UX link to register) */}
       <p
         onClick={() => navigate("/register")}
         style={{ cursor: "pointer", marginTop: "15px", color: "#007bff" }}

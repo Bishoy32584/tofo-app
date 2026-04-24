@@ -1,8 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { apiRequest } from "../utils/authManager";
 
-const API = "http://localhost:5000";
-
 const PostCard = ({ post, timeAgo, handleHug, handleShare, getUserId, senderId, socket }) => {
 
   const userId = getUserId(post.user);
@@ -37,7 +35,7 @@ const PostCard = ({ post, timeAgo, handleHug, handleShare, getUserId, senderId, 
 
             apiRequest({
               method: "POST",
-              url: `${API}/api/posts/impression`,
+              url: `/api/posts/impression`,
               data: { postId: post._id }
             }).finally(() => {
               requestLock.current = false;
@@ -68,7 +66,7 @@ const PostCard = ({ post, timeAgo, handleHug, handleShare, getUserId, senderId, 
 
             apiRequest({
               method: "POST",
-              url: `${API}/api/posts/view`,
+              url: `/api/posts/view`,
               data: {
                 postId: post._id,
                 duration
@@ -101,7 +99,7 @@ const PostCard = ({ post, timeAgo, handleHug, handleShare, getUserId, senderId, 
 
         apiRequest({
           method: "POST",
-          url: `${API}/api/posts/view`,
+          url: `/api/posts/view`,
           data: {
             postId: post._id,
             duration
@@ -146,7 +144,7 @@ const PostCard = ({ post, timeAgo, handleHug, handleShare, getUserId, senderId, 
 
             await apiRequest({
               method: "POST",
-              url: `${API}/api/messages`,
+              url: `/api/messages`,
               data: {
                 sender: senderId,
                 receiver: userId,

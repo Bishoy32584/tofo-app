@@ -3,7 +3,7 @@
 import { io } from "socket.io-client";
 import { getAccessToken } from "./utils/authManager"; // ✅ التعديل
 
-const SOCKET_URL = "http://localhost:5000";
+const SOCKET_URL = "https://tofo-app-production.up.railway.app";
 
 // قراءة التوكن من authManager بدل localStorage
 const socket = io(SOCKET_URL, {
