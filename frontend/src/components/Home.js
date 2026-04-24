@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import "./Home.css";
-import socket from "../socket";
 import { apiRequest } from "../utils/authManager";
 
 import PostCard from "../components/PostCard";
@@ -231,7 +230,6 @@ const Home = () => {
               handleShare={handleShare}
               getUserId={getUserId}
               senderId={senderId}
-              socket={socket}
             />
           ))
         )}

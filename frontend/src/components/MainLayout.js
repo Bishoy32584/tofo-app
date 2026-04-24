@@ -27,9 +27,12 @@ function MainLayout({ notifications: propNotifications }) {
   useEffect(() => {
     const fetchUnread = async () => {
       try {
+
+        const token = localStorage.getItem("accessToken");
+
         const res = await fetch("https://tofo-app-production.up.railway.app/api/conversations", {
           headers: {
-            Authorization: "Bearer " + localStorage.getItem("accessToken")
+            Authorization: token ? "Bearer " + token : ""
           }
         });
 
@@ -58,9 +61,14 @@ function MainLayout({ notifications: propNotifications }) {
   // -----------------------------
   useEffect(() => {
     if (location.pathname === "/notifications") {
+
+      const token = localStorage.getItem("accessToken");
+
       fetch("https://tofo-app-production.up.railway.app/api/notifications/mark-read", {
         method: "PATCH",
-        headers: { Authorization: "Bearer " + localStorage.getItem("accessToken") }
+        headers: {
+          Authorization: token ? "Bearer " + token : ""
+        }
       })
         .then(res => res.json())
         .then(data => {
