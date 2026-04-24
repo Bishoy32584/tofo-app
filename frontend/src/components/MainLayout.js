@@ -5,9 +5,6 @@ import { AiOutlineHome } from "react-icons/ai";
 import { FiMessageCircle } from "react-icons/fi";
 import { IoNotificationsOutline } from "react-icons/io5";
 
-// 🔹 Import socket instance
-import socket from "../socket";
-
 function MainLayout({ notifications: propNotifications }) {
 
   const navigate = useNavigate();
