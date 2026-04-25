@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./Home.css";
+import socket from "../socket"; // ✅ رجعناه
 import { apiRequest } from "../utils/authManager";
 
 import PostCard from "../components/PostCard";
@@ -23,7 +24,6 @@ const Home = () => {
 
   const [images, setImages] = useState([]);
 
-  // ✅ الإضافة
   const senderId = localStorage.getItem("currentUserId");
 
   const getUserId = (user) => {
@@ -68,7 +68,6 @@ const Home = () => {
     fetchPosts();
   }, []);
 
-  // ✅ FIX 1 — RESTORE real-time updates
   useEffect(() => {
     let timeoutId = null;
     let lastFetch = 0;
@@ -101,7 +100,6 @@ const Home = () => {
     const text = myPost?.trim();
     if (!text) return;
 
-    // ✅ التعديل الوحيد (منع المحتوى غير المناسب)
     const badWords = ["sex", "xxx", "porn", "nude"];
 
     for (let word of badWords) {
@@ -147,7 +145,6 @@ const Home = () => {
         data: { postId: id }
       });
 
-      // ✅ بدل refetch كامل
       setPosts(prev =>
         prev.map(p =>
           p._id === id
@@ -179,7 +176,6 @@ const Home = () => {
           onChange={(e) => setMyPost(e.target.value)}
         />
 
-        {/* ✅ زرار مجهول الهوية */}
         <div className="anonymous-toggle">
           <span className="hat-icon">🎭</span>
           <span className="anonymous-text">نشر كمجهول</span>
@@ -194,7 +190,6 @@ const Home = () => {
           </label>
         </div>
 
-        {/* upload images */}
         <div className="file-upload-wrapper">
           <label className="upload-btn">
             رفع صورة
@@ -230,6 +225,7 @@ const Home = () => {
               handleShare={handleShare}
               getUserId={getUserId}
               senderId={senderId}
+              socket={socket} // ✅ ده التعديل التاني
             />
           ))
         )}
