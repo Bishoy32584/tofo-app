@@ -54,11 +54,16 @@ console.log("SERVER FILE VERSION: REALTIME + MONGO ACTIVE");
 
 const PORT = process.env.PORT || 5000;
 
-// 🔹 CORS
+// 🔹 CORS (✅ التعديل هنا فقط)
 app.use(cors({
-  origin: ["https://tofo-app-1aok-git-main-b85892710-3254s-projects.vercel.app"],
+  origin: [
+    "http://localhost:3000",
+    "https://tofo-app-1aok-git-main-b85892710-3254s-projects.vercel.app",
+    "https://tofo-app-inky.vercel.app"
+  ],
   credentials: true
 }));
+
 app.use(express.json({ verify: (req, res, buf) => { req.rawBody = buf.toString("utf8"); } }));
 
 // =========================
