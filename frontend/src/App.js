@@ -162,16 +162,6 @@ function App() {
     <ChatProvider>
       <Router>
 
-        <button
-          onClick={async () => {
-            const permission = await Notification.requestPermission();
-            console.log("PERMISSION:", permission);
-          }}
-          style={{ position: "fixed", top: 10, right: 10, zIndex: 1000 }}
-        >
-          Enable Notifications
-        </button>
-
         <Routes>
 
           {!isAuthenticated ? (
