@@ -36,10 +36,8 @@ function Register() {
       const res = await apiRequest({
         method: "POST",
         url: "/api/auth/register",
-        data: formData,
-        headers: {
-          "Content-Type": "multipart/form-data"
-        }
+        data: formData
+        // axios will set boundary automatically
       });
 
       const data = res.data;

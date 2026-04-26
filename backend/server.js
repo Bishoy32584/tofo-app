@@ -62,8 +62,13 @@ app.use(cors({
     "https://tofo-app-1aok-git-main-b85892710-3254s-projects.vercel.app",
     "https://tofo-app-inky.vercel.app"
   ],
-  credentials: true
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
+
+// 🔥 مهم جدًا
+app.options("*", cors());
 
 app.use(express.json({ verify: (req, res, buf) => { req.rawBody = buf.toString("utf8"); } }));
 
