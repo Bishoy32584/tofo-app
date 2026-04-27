@@ -67,7 +67,7 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
-// 🔥 مهم جدًا
+// 🔥 مهم جدًا (التعديل هنا فقط)
 app.options(/.*/, cors());
 
 app.use(express.json({ verify: (req, res, buf) => { req.rawBody = buf.toString("utf8"); } }));
