@@ -68,7 +68,7 @@ app.use(cors({
 }));
 
 // 🔥 مهم جدًا
-app.options("/*", cors());
+app.options(/.*/, cors());
 
 app.use(express.json({ verify: (req, res, buf) => { req.rawBody = buf.toString("utf8"); } }));
 

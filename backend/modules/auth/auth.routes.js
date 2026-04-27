@@ -14,6 +14,9 @@ router.post(
   "/register",
   upload.single("profileImage"),
   async (req, res) => {
+    console.log("🔥 REGISTER HIT");
+    console.log("BODY:", req.body);
+
     try {
       const { name, email, password, mood } = req.body;
 
