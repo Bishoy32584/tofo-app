@@ -72,6 +72,9 @@ app.options(/.*/, cors());
 
 app.use(express.json({ verify: (req, res, buf) => { req.rawBody = buf.toString("utf8"); } }));
 
+// ✅ التعديل الجديد فقط
+app.use(express.urlencoded({ extended: true }));
+
 // =========================
 // 🔥 LOAD GUARD
 // =========================
