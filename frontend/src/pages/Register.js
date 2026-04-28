@@ -26,8 +26,12 @@ function Register() {
       setLoading(true);
 
       const formData = new FormData();
-      formData.append("username", cleanUsername);
+
+      // ✅ التعديل الوحيد هنا
+      formData.append("name", cleanUsername);
+      formData.append("email", cleanUsername + "@test.com"); // مؤقت
       formData.append("password", cleanPassword);
+      formData.append("mood", "happy");
 
       if (profileImage) {
         formData.append("profileImage", profileImage);
