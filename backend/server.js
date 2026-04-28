@@ -50,7 +50,8 @@ const cache = require("./redisClient");
 
 const app = express();
 
-console.log("SERVER FILE VERSION: REALTIME + MONGO ACTIVE");
+// ✅ التعديل الوحيد هنا
+console.log("🚨 THIS IS TOFO-APP 🚨");
 
 const PORT = process.env.PORT || 5000;
 
