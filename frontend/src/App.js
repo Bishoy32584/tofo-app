@@ -43,7 +43,7 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(!!getAccessToken());
 
   useEffect(() => {
-    console.log("🚀 App started");
+    console.log("🚨 FRONT FROM TOFO-APP 🚨");
 
     const handleAuthChange = () => {
       setIsAuthenticated(!!getAccessToken());
