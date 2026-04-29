@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { apiRequest } from "../utils/authManager";
 
 function Register() {
-  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [mood, setMood] = useState("");
   const [profileImage, setProfileImage] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -14,11 +16,13 @@ function Register() {
   const handleRegister = async () => {
     setError(null);
 
-    const cleanUsername = username.trim();
+    const cleanName = name.trim();
+    const cleanEmail = email.trim();
     const cleanPassword = password.trim();
+    const cleanMood = mood.trim();
 
-    if (!cleanUsername || !cleanPassword) {
-      setError("Username and password are required");
+    if (!cleanName || !cleanEmail || !cleanPassword || !cleanMood) {
+      setError("Name, email, password, and mood are required");
       return;
     }
 
@@ -27,15 +31,16 @@ function Register() {
 
       const formData = new FormData();
 
-      // ✅ التعديل الوحيد هنا
-      formData.append("name", cleanUsername);
-      formData.append("email", cleanUsername + "@test.com"); // مؤقت
+      formData.append("name", cleanName);
+      formData.append("email", cleanEmail);
       formData.append("password", cleanPassword);
-      formData.append("mood", "happy");
+      formData.append("mood", cleanMood);
 
       if (profileImage) {
         formData.append("profileImage", profileImage);
       }
+
+      console.log("Register FormData entries:", [...formData.entries()]);
 
       const res = await apiRequest({
         method: "POST",
@@ -61,9 +66,17 @@ function Register() {
 
       <input
         type="text"
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
+        placeholder="Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        style={{ width: "100%", padding: 10, margin: "10px 0" }}
+      />
+
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
         style={{ width: "100%", padding: 10, margin: "10px 0" }}
       />
 
@@ -72,6 +85,14 @@ function Register() {
         placeholder="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
+        style={{ width: "100%", padding: 10, margin: "10px 0" }}
+      />
+
+      <input
+        type="text"
+        placeholder="Mood"
+        value={mood}
+        onChange={(e) => setMood(e.target.value)}
         style={{ width: "100%", padding: 10, margin: "10px 0" }}
       />
 
