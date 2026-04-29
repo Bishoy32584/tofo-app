@@ -10,6 +10,8 @@ const register = async (req, res) => {
 
 try {
 
+console.log(req.body);
+
 const { name, email, password, mood } = req.body;
 
 const user = await registerUser({ name, email, password, mood });

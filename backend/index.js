@@ -12,6 +12,7 @@ const userRoutes = require("./routes/userRoutes");
 const postRoutes = require("./routes/postRoutes");
 const messageRoutes = require("./routes/messageRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const authRoutes = require("./modules/auth/auth.routes");
 
 //  Service
 const NotificationService = require("./services/NotificationService");
@@ -29,12 +30,14 @@ app.use(cors({
 }));
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // ========================
 // Routes
 // ========================
 app.use("/api/users", userRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/notifications", notificationRoutes);
