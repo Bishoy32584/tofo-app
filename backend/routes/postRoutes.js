@@ -62,7 +62,9 @@ router.post(
     try {
       const { content, mood, isAnonymous } = req.body;
 
-      if (!content) {
+      const trimmedContent = typeof content === "string" ? content.trim() : "";
+
+      if (!trimmedContent && (!req.files || req.files.length === 0)) {
         return res.status(400).json({ message: "Content required" });
       }
 
@@ -88,10 +90,10 @@ router.post(
 
       const post = new Post({
         user: req.userId,
-        content,
+        content: trimmedContent,
         mood,
         isAnonymous,
-        postVector: simpleTextVector(content),
+        postVector: simpleTextVector(trimmedContent),
         images: imageUrls,
         isExplicit,
         explicitScore

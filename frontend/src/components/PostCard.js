@@ -1,6 +1,17 @@
 import React, { useEffect, useRef } from "react";
 import { apiRequest } from "../utils/authManager";
 
+const MEDIA_BASE = "https://tofo-app-production.up.railway.app";
+
+function resolvePostImageUrl(path) {
+  if (!path || typeof path !== "string") return "";
+  const trimmed = path.trim();
+  if (!trimmed) return "";
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  const normalized = trimmed.replace(/\\/g, "/").replace(/^\/+/, "");
+  return `${MEDIA_BASE.replace(/\/+$/, "")}/${normalized}`;
+}
+
 const PostCard = ({ post, timeAgo, handleHug, handleShare, getUserId, senderId, socket }) => {
 
   const userId = getUserId(post.user);
@@ -132,7 +143,26 @@ const PostCard = ({ post, timeAgo, handleHug, handleShare, getUserId, senderId, 
         </div>
       </div>
 
-      <p className="post-content">{post.content}</p>
+      {post.content ? (
+        <p className="post-content">{post.content}</p>
+      ) : null}
+
+      {Array.isArray(post.images) && post.images.length > 0 ? (
+        <div className="post-image-gallery">
+          {post.images.map((src, idx) => {
+            const url = resolvePostImageUrl(src);
+            if (!url) return null;
+            return (
+              <img
+                key={`${post._id}-img-${idx}`}
+                className="post-gallery-img"
+                src={url}
+                alt=""
+              />
+            );
+          })}
+        </div>
+      ) : null}
 
       <div className="post-actions">
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./Home.css";
 import socket from "../socket"; // ✅ رجعناه
 import { apiRequest } from "../utils/authManager";
@@ -23,8 +23,22 @@ const Home = () => {
   const [loading, setLoading] = useState(false);
 
   const [images, setImages] = useState([]);
+  const [previewUrls, setPreviewUrls] = useState([]);
+  const fileInputRef = useRef(null);
 
   const senderId = localStorage.getItem("currentUserId");
+
+  useEffect(() => {
+    if (!images.length) {
+      setPreviewUrls([]);
+      return;
+    }
+    const urls = images.map((file) => URL.createObjectURL(file));
+    setPreviewUrls(urls);
+    return () => {
+      urls.forEach((u) => URL.revokeObjectURL(u));
+    };
+  }, [images]);
 
   const getUserId = (user) => {
     if (!user) return null;
@@ -34,9 +48,9 @@ const Home = () => {
 
   const handleShare = (post) => {
     if (navigator.share) {
-      navigator.share({ text: post.content });
+      navigator.share({ text: post.content || "" });
     } else {
-      navigator.clipboard.writeText(post.content);
+      navigator.clipboard.writeText(post.content || "");
       alert("تم النسخ");
     }
   };
@@ -97,15 +111,18 @@ const Home = () => {
   }, []);
 
   const sendPost = async () => {
-    const text = myPost?.trim();
-    if (!text) return;
+    const text = (myPost ?? "").trim();
+    const hasImages = images.length > 0;
+    if (!text && !hasImages) return;
 
     const badWords = ["sex", "xxx", "porn", "nude"];
 
-    for (let word of badWords) {
-      if (text.toLowerCase().includes(word)) {
-        alert("المحتوى غير مناسب");
-        return;
+    if (text) {
+      for (let word of badWords) {
+        if (text.toLowerCase().includes(word)) {
+          alert("المحتوى غير مناسب");
+          return;
+        }
       }
     }
 
@@ -127,6 +144,9 @@ const Home = () => {
 
       setMyPost("");
       setImages([]);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
       setIsAnonymous(false);
       setSelectedMood(moods[0]);
 
@@ -194,12 +214,30 @@ const Home = () => {
           <label className="upload-btn">
             رفع صورة
             <input
+              ref={fileInputRef}
               type="file"
+              accept="image/*"
               multiple
-              onChange={(e) => setImages(e.target.files)}
+              onChange={(e) => {
+                const list = e.target.files;
+                setImages(list && list.length ? Array.from(list) : []);
+              }}
             />
           </label>
         </div>
+
+        {previewUrls.length > 0 ? (
+          <div className="composer-preview-row">
+            {previewUrls.map((url, idx) => (
+              <img
+                key={url}
+                className="composer-preview-thumb"
+                src={url}
+                alt=""
+              />
+            ))}
+          </div>
+        ) : null}
 
         <button
           className="post-btn"

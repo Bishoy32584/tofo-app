@@ -291,6 +291,35 @@ input:checked + .slider:before {
   color: #F1EDFF;
 }
 
+.post-image-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 12px;
+}
+
+.post-gallery-img {
+  max-width: 100%;
+  max-height: 280px;
+  border-radius: 14px;
+  object-fit: cover;
+}
+
+.composer-preview-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.composer-preview-thumb {
+  width: 72px;
+  height: 72px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid rgba(124, 58, 237, 0.35);
+}
+
 .post-media img,
 .post-media video {
   margin-top: 8px;
