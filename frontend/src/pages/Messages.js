@@ -42,6 +42,12 @@ function Messages() {
   };
 
   useEffect(() => {
+
+    // ✅ ensure socket connected
+    if (!socket.connected) {
+      socket.connect();
+    }
+
     const fetchConversations = async () => {
       try {
         const res = await apiRequest({
@@ -62,7 +68,7 @@ function Messages() {
               name: otherUser?.name || "مستخدم غير معروف",
               lastMessage: conv.lastMessage,
               timestamp: conv.lastMessageAt,
-              unread: conv.unread?.[localStorage.getItem("currentUserId")] || 0,
+              unread: conv.unread?.get(localStorage.getItem("currentUserId")) || 0,
             };
           });
 

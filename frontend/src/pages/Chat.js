@@ -81,6 +81,12 @@ function Chat() {
   // 🔥 SOCKET LISTENERS (NEW)
   // =========================
   useEffect(() => {
+
+    // ✅ ensure socket connected
+    if (!socket.connected) {
+      socket.connect();
+    }
+
     const onNewMessage = (msg) => {
 
       const isRelevant =
@@ -104,9 +110,6 @@ function Chat() {
       }
     };
 
-    // =========================
-    // confirmation (existing logic preserved)
-    // =========================
     const onMessageConfirmed = ({ tempId, message }) => {
       setMessages(prev =>
         prev.map(msg =>
@@ -124,14 +127,16 @@ function Chat() {
       setPending(prev => prev.filter((p) => String(p) !== String(tempId)));
     };
 
-    // =========================
-    // RETRY SYSTEM (NEW)
-    // =========================
     const onConnectError = () => {
       pending.forEach(id => {
         console.log("retry message", id);
       });
     };
+
+    // ✅ prevent duplicate listeners
+    socket.off("newMessage");
+    socket.off("messageConfirmed");
+    socket.off("connect_error");
 
     socket.on("newMessage", onNewMessage);
     socket.on("messageConfirmed", onMessageConfirmed);
@@ -142,7 +147,7 @@ function Chat() {
       socket.off("messageConfirmed", onMessageConfirmed);
       socket.off("connect_error", onConnectError);
     };
-  }, [id, currentUserId, pending]);
+  }, [id, currentUserId]); // ✅ FIXED
 
   useEffect(() => {
     if (conversation?.name) {
@@ -151,17 +156,25 @@ function Chat() {
   }, [conversation]);
 
   // =========================
-  // SEEN LOGIC (NEW)
+  // SEEN LOGIC (FIXED)
   // =========================
   useEffect(() => {
-    messages
-      .filter((m) => m.sender !== "You" && m.id)
-      .forEach((msg) => {
+    const seenIds = new Set();
+
+    messages.forEach(msg => {
+      if (
+        msg.sender !== "You" &&
+        msg.id &&
+        !seenIds.has(msg.id)
+      ) {
+        seenIds.add(msg.id);
+
         socket.emit("messageSeen", {
           messageId: msg.id,
           chatWith: id
         });
-      });
+      }
+    });
   }, [id, messages]);
 
   // Scroll تلقائي
@@ -175,6 +188,12 @@ function Chat() {
   // =========================
   const handleSend = () => {
     if (!input.trim()) return;
+
+    // ✅ connection guard
+    if (!socket.connected) {
+      alert("Connection lost. Try again.");
+      return;
+    }
 
     const tempId = Date.now();
 

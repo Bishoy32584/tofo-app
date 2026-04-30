@@ -189,18 +189,7 @@ const PostCard = ({ post, timeAgo, handleHug, handleShare, getUserId, currentUse
             const text = prompt("اكتب رسالتك:");
             if (!text || !userId) return;
 
-            await apiRequest({
-              method: "POST",
-              url: `/api/messages`,
-              data: {
-                sender: senderId,
-                receiver: userId,
-                content: text
-              }
-            });
-
             socket.emit("sendMessage", {
-              sender: senderId,
               receiver: userId,
               content: text,
               chatId: userId
