@@ -227,19 +227,25 @@ const Home = () => {
         </div>
 
         <div className="file-upload-wrapper">
-          <label className="upload-btn">
+          <label
+            className="upload-btn"
+            onClick={() => fileInputRef.current.click()}
+          >
             رفع صورة
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={(e) => {
-                const list = e.target.files;
-                setImages(list && list.length ? Array.from(list) : []);
-              }}
-            />
           </label>
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            style={{ display: "none" }}
+            onChange={(e) => {
+              console.log("FILES:", e.target.files);
+              const list = e.target.files;
+              setImages(list && list.length ? Array.from(list) : []);
+            }}
+          />
         </div>
 
         {previewUrls.length > 0 ? (
