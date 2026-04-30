@@ -33,7 +33,7 @@ const pendingRequests = new Map();
 const upload = require("../middlewares/upload");
 
 // 🚀 HYBRID ENGINE IMPORT (NEW)
-const { getGlobalFeed } = require("../services/feedEngine");
+const { getGlobalFeed, attachUserNames } = require("../services/feedEngine");
 
 // ✅ NEW (التعديل)
 const scorePost = require("../services/rankingEngine");
@@ -147,8 +147,8 @@ router.get("/feed",
       console.timeEnd("GLOBAL_FEED");
 
       if (!globalFeed.length) {
-        const fallback = await Post.find().limit(20);
-        return fallback;
+        const fallback = await Post.find().limit(20).lean();
+        return await attachUserNames(fallback);
       }
 
       const userBehavior = await UserBehavior.findOne({

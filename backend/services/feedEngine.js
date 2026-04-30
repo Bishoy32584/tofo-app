@@ -1,10 +1,42 @@
 const Post = require("../models/Post");
+const User = require("../models/User");
 
 // 🟢 cache بسيط
 let globalFeedCache = [];
 let lastComputed = 0;
 
 const CACHE_DURATION = 10000; // 10 ثواني
+
+async function attachUserNames(posts) {
+  if (!Array.isArray(posts) || posts.length === 0) {
+    return [];
+  }
+
+  const userIds = [
+    ...new Set(
+      posts
+        .map((post) => post?.user && String(post.user))
+        .filter(Boolean)
+    )
+  ];
+
+  if (userIds.length === 0) {
+    return posts.map((post) => ({ ...post, userName: "" }));
+  }
+
+  const users = await User.find({ _id: { $in: userIds } })
+    .select("_id name")
+    .lean();
+
+  const userNameById = new Map(
+    users.map((user) => [String(user._id), user.name || ""])
+  );
+
+  return posts.map((post) => ({
+    ...post,
+    userName: userNameById.get(String(post.user)) || ""
+  }));
+}
 
 async function computeGlobalFeed() {
 
@@ -48,10 +80,12 @@ async function computeGlobalFeed() {
 
   console.timeEnd("Scoring");
 
-  globalFeedCache = result;
+  const withUserNames = await attachUserNames(result);
+
+  globalFeedCache = withUserNames;
   lastComputed = Date.now();
 
-  return result;
+  return withUserNames;
 }
 
 // ✅ دي أهم function في النظام
@@ -66,5 +100,6 @@ async function getGlobalFeed() {
 }
 
 module.exports = {
-  getGlobalFeed
+  getGlobalFeed,
+  attachUserNames
 };
