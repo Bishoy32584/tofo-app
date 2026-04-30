@@ -43,6 +43,7 @@ async function computeGlobalFeed() {
   console.time("MongoQuery");
 
   const posts = await Post.find()
+    .populate("user", "name profileImage") // ✅ التعديل الوحيد
     .sort({ createdAt: -1 })
     .limit(200)
     .select("content mood stats createdAt isExplicit user tags images expiresAt")

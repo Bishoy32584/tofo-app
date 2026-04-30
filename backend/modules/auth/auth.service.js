@@ -27,12 +27,20 @@ const generateRefreshToken = (userId) => {
 // --------------------
 // Register User
 // --------------------
-const registerUser = async ({ name, email, password, mood }) => {
+const registerUser = async ({ name, email, password, mood, profileImage }) => { // ✅ تعديل
   const existing = await User.findOne({ email });
   if (existing) throw new Error("Email already registered");
 
   const hashed = await argon2.hash(password, { type: argon2.argon2id });
-  const newUser = new User({ name, email, password: hashed, mood });
+
+  // ✅ التعديل هنا
+  const newUser = new User({ 
+    name, 
+    email, 
+    password: hashed, 
+    mood,
+    profileImage 
+  });
 
   await newUser.save();
   return newUser;

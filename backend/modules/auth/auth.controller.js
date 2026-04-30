@@ -12,9 +12,17 @@ try {
 
 console.log(req.body);
 
+// ✅ التعديل الجديد
+let profileImage = "";
+
+if (req.file) {
+  profileImage = req.file.path;
+}
+
 const { name, email, password, mood } = req.body;
 
-const user = await registerUser({ name, email, password, mood });
+// ✅ التعديل هنا (إرسال الصورة للـ service)
+const user = await registerUser({ name, email, password, mood, profileImage });
 
 res.status(201).json({
 
