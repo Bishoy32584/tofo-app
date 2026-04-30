@@ -99,7 +99,13 @@ async function getGlobalFeed() {
   return await computeGlobalFeed();
 }
 
+function clearGlobalFeedCache() {
+  globalFeedCache = [];
+  lastComputed = 0;
+}
+
 module.exports = {
   getGlobalFeed,
-  attachUserNames
+  attachUserNames,
+  clearGlobalFeedCache
 };

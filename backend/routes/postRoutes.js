@@ -33,7 +33,7 @@ const pendingRequests = new Map();
 const upload = require("../middlewares/upload");
 
 // 🚀 HYBRID ENGINE IMPORT (NEW)
-const { getGlobalFeed, attachUserNames } = require("../services/feedEngine");
+const { getGlobalFeed, attachUserNames, clearGlobalFeedCache } = require("../services/feedEngine");
 
 // ✅ NEW (التعديل)
 const scorePost = require("../services/rankingEngine");
@@ -338,6 +338,32 @@ router.post("/hug",
 
   } catch (err) {
     console.error("Hug Error:", err);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+// 🔹 Delete Post (owner only)
+router.delete("/:id", authenticate, async (req, res) => {
+  try {
+    const deleted = await Post.findOneAndDelete({
+      _id: req.params.id,
+      user: req.userId
+    });
+
+    if (!deleted) {
+      return res.status(404).json({ message: "Post not found or unauthorized" });
+    }
+
+    // keep existing cache strategy + clear global snapshot
+    invalidateFeed(req.userId);
+    clearGlobalFeedCache();
+
+    res.json({
+      success: true,
+      postId: String(deleted._id)
+    });
+  } catch (err) {
+    console.error("Delete Post Error:", err);
     res.status(500).json({ message: "Server Error" });
   }
 });
