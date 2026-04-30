@@ -227,6 +227,9 @@ io.on("connection", (socket) => {
 
       conversation.lastMessage = content;
       conversation.lastMessageAt = new Date();
+      const receiverUnread = conversation.unread?.get(receiver.toString()) || 0;
+      conversation.unread.set(receiver.toString(), receiverUnread + 1);
+      conversation.unread.set(sender.toString(), 0);
 
       await conversation.save();
 
