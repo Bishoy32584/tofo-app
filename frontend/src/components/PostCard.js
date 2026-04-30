@@ -138,7 +138,7 @@ const PostCard = ({ post, timeAgo, handleHug, handleShare, getUserId, senderId, 
         <img className="avatar" src={`https://i.pravatar.cc/48?u=${post._id}`} alt="" />
 
         <div className="user-info-right">
-          <h4>{post.isAnonymous ? "مجهول" : post.user?.name || "مستخدم"}</h4>
+          <h4>{post.isAnonymous ? "مجهول" : post.userName || post.user?.name || "مستخدم"}</h4>
           <span className="time">{timeAgo(post.createdAt)}</span>
         </div>
       </div>
