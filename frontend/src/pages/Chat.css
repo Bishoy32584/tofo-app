@@ -2,7 +2,7 @@
   display: grid;
   grid-template-rows: 60px 1fr 70px;
   height: 100vh;
-  background: linear-gradient(to bottom, #1a1a1a, #000);
+  background: linear-gradient(to bottom, #11111b, #07070c);
   color: #fff;
 }
 
@@ -12,7 +12,7 @@
   align-items: center;
   padding: 10px 15px;
   border-bottom: 1px solid #222;
-  background: #111;
+  background: #0c0c14;
 }
 
 .chat-header button {
@@ -82,7 +82,7 @@
 .chat-input {
   display: flex;
   padding: 10px;
-  background: #111;
+  background: #0c0c14;
   border-top: 1px solid #222;
 }
 
@@ -103,7 +103,7 @@
   width: 45px;
   height: 45px;
   background: #6c5ce7;
-  color: #fff;
+  color: #f4f4f5;
   font-size: 18px;
   cursor: pointer;
 }

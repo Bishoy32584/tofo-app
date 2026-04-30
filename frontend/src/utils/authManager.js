@@ -183,6 +183,8 @@ export const notifySocket = () => {
 
     if (socket.connected) {
       socket.disconnect().connect();
+    } else {
+      socket.connect();
     }
 
   } catch (err) {

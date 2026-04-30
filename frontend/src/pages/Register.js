@@ -106,7 +106,7 @@ function Register() {
       <button
         onClick={handleRegister}
         disabled={loading}
-        style={{ padding: "10px 20px", marginTop: 10 }}
+        style={{ padding: "10px 20px", marginTop: 10, color: "#F4F4F5", background: "#6b46c1", border: "none", borderRadius: "8px" }}
       >
         {loading ? "Creating..." : "Register"}
       </button>

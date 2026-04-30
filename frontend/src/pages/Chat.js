@@ -17,6 +17,7 @@ function Chat() {
 
   // 🔥 ADDED (Optimistic + retry system)
   const [pending, setPending] = useState([]);
+  const conversationNameRef = useRef("");
 
   const currentUserId = localStorage.getItem("currentUserId");
 
@@ -34,6 +35,7 @@ function Chat() {
 
       if (convInfo) {
         setConversation(convInfo);
+        conversationNameRef.current = convInfo.name || "مستخدم";
       } else {
         try {
           const res = await apiRequest({
@@ -43,8 +45,10 @@ function Chat() {
           const user = res.data;
           convInfo = { id, name: user.name || "مستخدم غير معروف" };
           setConversation(convInfo);
+          conversationNameRef.current = convInfo.name || "مستخدم";
         } catch {
           setConversation({ id, name: "مستخدم غير معروف" });
+          conversationNameRef.current = "مستخدم غير معروف";
         }
       }
 
@@ -59,7 +63,7 @@ function Chat() {
         if (Array.isArray(data)) {
           const formatted = data.map((msg) => ({
             id: msg._id,
-            sender: msg.sender === currentUserId ? "You" : convInfo?.name || "مستخدم",
+            sender: String(msg.sender) === String(currentUserId) ? "You" : convInfo?.name || "مستخدم",
             text: msg.content,
             timestamp: msg.createdAt,
           }));
@@ -77,31 +81,33 @@ function Chat() {
   // 🔥 SOCKET LISTENERS (NEW)
   // =========================
   useEffect(() => {
-    socket.off("newMessage");
-
-    socket.on("newMessage", (msg) => {
+    const onNewMessage = (msg) => {
 
       const isRelevant =
-        (msg.sender === currentUserId && msg.receiver === id) ||
-        (msg.sender === id && msg.receiver === currentUserId);
+        (String(msg.sender) === String(currentUserId) && String(msg.receiver) === String(id)) ||
+        (String(msg.sender) === String(id) && String(msg.receiver) === String(currentUserId));
 
       if (isRelevant) {
-        setMessages(prev => [
-          ...prev,
-          {
-            id: msg._id,
-            sender: msg.sender === currentUserId ? "You" : conversation?.name,
-            text: msg.content,
-            status: "DELIVERED"
-          }
-        ]);
+        setMessages(prev => {
+          if (prev.some((m) => String(m.id) === String(msg._id))) return prev;
+          return [
+            ...prev,
+            {
+              id: msg._id,
+              sender: String(msg.sender) === String(currentUserId) ? "You" : (conversationNameRef.current || "مستخدم"),
+              text: msg.content,
+              timestamp: msg.createdAt || new Date().toISOString(),
+              status: "DELIVERED"
+            }
+          ];
+        });
       }
-    });
+    };
 
     // =========================
     // confirmation (existing logic preserved)
     // =========================
-    socket.on("messageConfirmed", ({ tempId, message }) => {
+    const onMessageConfirmed = ({ tempId, message }) => {
       setMessages(prev =>
         prev.map(msg =>
           msg.id === tempId
@@ -115,28 +121,48 @@ function Chat() {
             : msg
         )
       );
-    });
+      setPending(prev => prev.filter((p) => String(p) !== String(tempId)));
+    };
 
     // =========================
     // RETRY SYSTEM (NEW)
     // =========================
-    socket.on("connect_error", () => {
+    const onConnectError = () => {
       pending.forEach(id => {
         console.log("retry message", id);
       });
-    });
+    };
 
-    return () => socket.off("newMessage");
-  }, [id, conversation, currentUserId, pending]);
+    socket.on("newMessage", onNewMessage);
+    socket.on("messageConfirmed", onMessageConfirmed);
+    socket.on("connect_error", onConnectError);
+
+    return () => {
+      socket.off("newMessage", onNewMessage);
+      socket.off("messageConfirmed", onMessageConfirmed);
+      socket.off("connect_error", onConnectError);
+    };
+  }, [id, currentUserId, pending]);
+
+  useEffect(() => {
+    if (conversation?.name) {
+      conversationNameRef.current = conversation.name;
+    }
+  }, [conversation]);
 
   // =========================
   // SEEN LOGIC (NEW)
   // =========================
   useEffect(() => {
-    socket.emit("messageSeen", {
-      chatWith: id
-    });
-  }, [id]);
+    messages
+      .filter((m) => m.sender !== "You" && m.id)
+      .forEach((msg) => {
+        socket.emit("messageSeen", {
+          messageId: msg.id,
+          chatWith: id
+        });
+      });
+  }, [id, messages]);
 
   // Scroll تلقائي
   useEffect(() => {
@@ -208,7 +234,7 @@ function Chat() {
         </div>
       </div>
 
-      <div className="chat-messages" style={{ flex: 1, overflowY: "auto", padding: "10px", background: "#1a1a2e" }}>
+      <div className="chat-messages" style={{ flex: 1, overflowY: "auto", padding: "10px", background: "#11111b" }}>
         {messages.length === 0 ? (
           <div className="empty-chat">ابدأ المحادثة الآن ✨</div>
         ) : (
@@ -217,7 +243,7 @@ function Chat() {
               key={msg.id}
               className={`bubble ${msg.sender === "You" ? "sent" : "received"}`}
               style={{
-                background: "#4b0082",
+                background: "#3b1d6b",
                 color: "white",
                 maxWidth: "70%",
                 margin: "8px",
@@ -236,7 +262,7 @@ function Chat() {
         <div ref={chatEndRef}></div>
       </div>
 
-      <div className="chat-input" style={{ padding: "10px 16px", background: "transparent", borderTop: "1px solid rgba(255,255,255,0.1)", display: "flex", gap: "10px", alignItems: "center" }}>
+      <div className="chat-input" style={{ padding: "10px 16px", background: "#0c0c14", borderTop: "1px solid rgba(255,255,255,0.1)", display: "flex", gap: "10px", alignItems: "center" }}>
         <input
           ref={inputRef}
           type="text"
@@ -249,8 +275,8 @@ function Chat() {
             padding: "12px 16px",
             borderRadius: "25px",
             border: "1px solid rgba(255,255,255,0.2)",
-            background: "rgba(50,50,80,0.4)",
-            color: "white",
+            background: "rgba(35,35,55,0.6)",
+            color: "#F4F4F5",
             outline: "none",
             fontSize: "16px",
           }}
@@ -260,7 +286,7 @@ function Chat() {
           style={{
             padding: "12px 20px",
             background: "#6b46c1",
-            color: "white",
+            color: "#F4F4F5",
             border: "none",
             borderRadius: "25px",
             cursor: "pointer",

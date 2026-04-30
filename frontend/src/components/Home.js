@@ -184,6 +184,22 @@ const Home = () => {
     }
   };
 
+  const handleDeletePost = async (postId) => {
+    try {
+      const res = await apiRequest({
+        method: "DELETE",
+        url: `${API}/api/posts/${postId}`
+      });
+
+      if (res.data?.success) {
+        setPosts((prev) => prev.filter((p) => p._id !== postId));
+      }
+    } catch (err) {
+      console.error("Delete post error:", err);
+      alert(err.response?.data?.message || "Delete failed");
+    }
+  };
+
   return (
     <div className="home-container">
 
@@ -262,6 +278,8 @@ const Home = () => {
               handleHug={handleHug}
               handleShare={handleShare}
               getUserId={getUserId}
+              currentUserId={senderId}
+              onDelete={handleDeletePost}
               senderId={senderId}
               socket={socket} // ✅ ده التعديل التاني
             />

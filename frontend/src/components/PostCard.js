@@ -12,9 +12,11 @@ function resolvePostImageUrl(path) {
   return `${MEDIA_BASE.replace(/\/+$/, "")}/${normalized}`;
 }
 
-const PostCard = ({ post, timeAgo, handleHug, handleShare, getUserId, senderId, socket }) => {
+const PostCard = ({ post, timeAgo, handleHug, handleShare, getUserId, currentUserId, onDelete, senderId, socket }) => {
 
   const userId = getUserId(post.user);
+  const ownerId = getUserId(post.user);
+  const isOwner = Boolean(currentUserId && ownerId && String(currentUserId) === String(ownerId));
 
   const postRef = useRef(null);
   const sentRef = useRef(false);
@@ -141,6 +143,21 @@ const PostCard = ({ post, timeAgo, handleHug, handleShare, getUserId, senderId, 
           <h4>{post.isAnonymous ? "مجهول" : post.userName || post.user?.name || "مستخدم"}</h4>
           <span className="time">{timeAgo(post.createdAt)}</span>
         </div>
+
+        {isOwner ? (
+          <button
+            className="post-menu-btn"
+            onClick={() => {
+              if (window.confirm("Delete this post?")) {
+                onDelete?.(post._id);
+              }
+            }}
+            title="Delete post"
+            aria-label="Delete post"
+          >
+            ⋯
+          </button>
+        ) : null}
       </div>
 
       {post.content ? (

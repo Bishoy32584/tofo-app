@@ -1,12 +1,45 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiRequest } from "../utils/authManager";
+import socket from "../socket";
 import "./Messages.css";
 
 function Messages() {
   const navigate = useNavigate();
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const currentUserId = localStorage.getItem("currentUserId");
+
+  const upsertConversationFromMessage = (msg) => {
+    const otherUserId =
+      String(msg.sender) === String(currentUserId)
+        ? String(msg.receiver)
+        : String(msg.sender);
+
+    setConversations((prev) => {
+      const existing = prev.find((c) => String(c.id) === otherUserId);
+      const nextItem = existing
+        ? {
+            ...existing,
+            lastMessage: msg.content,
+            timestamp: msg.createdAt || new Date().toISOString(),
+            unread:
+              String(msg.receiver) === String(currentUserId)
+                ? (existing.unread || 0) + 1
+                : 0
+          }
+        : {
+            id: otherUserId,
+            name: "مستخدم",
+            lastMessage: msg.content,
+            timestamp: msg.createdAt || new Date().toISOString(),
+            unread: String(msg.receiver) === String(currentUserId) ? 1 : 0
+          };
+
+      const withoutExisting = prev.filter((c) => String(c.id) !== otherUserId);
+      return [nextItem, ...withoutExisting];
+    });
+  };
 
   useEffect(() => {
     const fetchConversations = async () => {
@@ -53,6 +86,26 @@ function Messages() {
 
     fetchConversations();
   }, []);
+
+  useEffect(() => {
+    const onNewMessage = (msg) => {
+      upsertConversationFromMessage(msg);
+    };
+
+    const onMessageConfirmed = ({ message }) => {
+      if (message) {
+        upsertConversationFromMessage(message);
+      }
+    };
+
+    socket.on("newMessage", onNewMessage);
+    socket.on("messageConfirmed", onMessageConfirmed);
+
+    return () => {
+      socket.off("newMessage", onNewMessage);
+      socket.off("messageConfirmed", onMessageConfirmed);
+    };
+  }, [currentUserId]);
 
   if (loading) {
     return <div className="loading">جاري التحميل...</div>;

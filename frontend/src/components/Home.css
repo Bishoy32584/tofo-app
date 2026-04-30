@@ -291,6 +291,17 @@ input:checked + .slider:before {
   color: #F1EDFF;
 }
 
+.post-menu-btn {
+  margin-inline-start: auto;
+  border: none;
+  background: transparent;
+  color: #cfc6ff;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
 .post-image-gallery {
   display: flex;
   flex-wrap: wrap;

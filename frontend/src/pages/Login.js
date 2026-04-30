@@ -59,7 +59,10 @@ function Login() {
         style={{ width: "100%", padding: "10px", margin: "10px 0" }}
       />
 
-      <button onClick={handleLogin} style={{ padding: "10px 20px", marginTop: "10px" }}>
+      <button
+        onClick={handleLogin}
+        style={{ padding: "10px 20px", marginTop: "10px", color: "#F4F4F5", background: "#6b46c1", border: "none", borderRadius: "8px" }}
+      >
         تسجيل الدخول
       </button>
 
