@@ -9,8 +9,8 @@
 
 body {
   font-family: 'Cairo', 'Tajawal', sans-serif;
-  background: #15002B;
-  color: #E6E1FF;
+  background: var(--bg-secondary);
+  color: var(--text-main);
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
@@ -135,7 +135,7 @@ input:checked + .slider:before {
   border: none;
   border-radius: 14px;
   background: linear-gradient(135deg, #7c3aed, #5b21b6);
-  color: white;
+  color: var(--text-main);
   font-weight: 700;
   font-size: 15px;
   cursor: pointer;
@@ -348,19 +348,19 @@ input:checked + .slider:before {
   flex: 1;
   border: 1px solid #7c3aed;
   background: transparent;
-  color: #BEB3FF;
+  color: var(--text-main);
   border-radius: 999px;
   padding: 8px 12px;
   font-size: 13px;
 }
 
-/* ✅ MODIFIED ONLY HERE */
+/* action-btn */
 .action-btn {
   width: 42px;
   height: 42px;
   border-radius: 50%;
   background: #241c3d;
-  color: #cfc6ff;
+  color: var(--text-main);
   border: none;
   font-size: 16px;
   transition: 0.2s;

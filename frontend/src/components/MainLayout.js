@@ -91,7 +91,7 @@ function MainLayout({ notifications: propNotifications }) {
           left: 0,
           right: 0,
           height: "65px",
-          background: "#1a1a2e",
+          background: "#0f0a1f",
           display: "flex",
           justifyContent: "space-around",
           alignItems: "center",
@@ -100,25 +100,25 @@ function MainLayout({ notifications: propNotifications }) {
         }}
       >
         {/* HOME */}
-        <button onClick={() => navigate("/")} style={{ background: "none", border: "none", color: "white", fontSize: "26px", position: "relative", cursor: "pointer" }}>
+        <button onClick={() => navigate("/")} style={{ background: "none", border: "none", color: "#F4F4F5", fontSize: "26px", position: "relative", cursor: "pointer" }}>
           <AiOutlineHome />
         </button>
 
         {/* MESSAGES */}
-        <button onClick={() => navigate("/messages")} style={{ background: "none", border: "none", color: "white", fontSize: "26px", position: "relative", cursor: "pointer" }}>
+        <button onClick={() => navigate("/messages")} style={{ background: "none", border: "none", color: "#F4F4F5", fontSize: "26px", position: "relative", cursor: "pointer" }}>
           <FiMessageCircle />
           {unreadMessages > 0 && (
-            <span style={{ position: "absolute", top: "-6px", right: "-10px", background: "red", color: "white", borderRadius: "50%", padding: "3px 7px", fontSize: "11px", fontWeight: "bold" }}>
+            <span style={{ position: "absolute", top: "-6px", right: "-10px", background: "red", color: "#F4F4F5", borderRadius: "50%", padding: "3px 7px", fontSize: "11px", fontWeight: "bold" }}>
               {unreadMessages}
             </span>
           )}
         </button>
 
         {/* NOTIFICATIONS */}
-        <button onClick={() => navigate("/notifications")} style={{ background: "none", border: "none", color: "white", fontSize: "26px", position: "relative", cursor: "pointer" }}>
+        <button onClick={() => navigate("/notifications")} style={{ background: "none", border: "none", color: "#F4F4F5", fontSize: "26px", position: "relative", cursor: "pointer" }}>
           <IoNotificationsOutline />
           {unreadNotifications > 0 && (
-            <span style={{ position: "absolute", top: "-6px", right: "-10px", background: "red", color: "white", borderRadius: "50%", padding: "3px 7px", fontSize: "11px", fontWeight: "bold" }}>
+            <span style={{ position: "absolute", top: "-6px", right: "-10px", background: "red", color: "#F4F4F5", borderRadius: "50%", padding: "3px 7px", fontSize: "11px", fontWeight: "bold" }}>
               {unreadNotifications}
             </span>
           )}
