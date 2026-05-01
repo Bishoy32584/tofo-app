@@ -113,6 +113,30 @@ app.use(cookieParser());
 app.use(helmet());
 
 // =========================
+// ✅ 🔥 JWT DEBUG MIDDLEWARE (ده التعديل المطلوب)
+// =========================
+app.use((req, res, next) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+
+    console.log("TOKEN:", token);
+
+    if (!token) return next();
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    console.log("DECODED:", decoded);
+
+    req.user = decoded;
+
+    next();
+  } catch (err) {
+    console.log("JWT ERROR:", err.message);
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+});
+
+// =========================
 // STATIC FILES
 // =========================
 app.use("/uploads", express.static("uploads"));
