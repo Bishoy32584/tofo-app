@@ -60,6 +60,11 @@ router.post(
   upload.array("images", 5),
   async (req, res) => {
     try {
+
+      // ✅ الإضافة هنا فقط
+      console.log("📥 BODY:", req.body);
+      console.log("📥 FILES:", req.files || req.file);
+
       const { content, mood, isAnonymous } = req.body;
 
       const trimmedContent = typeof content === "string" ? content.trim() : "";
