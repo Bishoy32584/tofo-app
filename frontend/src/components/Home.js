@@ -142,6 +142,13 @@ const Home = () => {
         data: formData
       });
 
+      // ✅ التعديل الوحيد هنا
+      window.dispatchEvent(
+        new CustomEvent("feed-update", {
+          detail: { action: "new-post" }
+        })
+      );
+
       setMyPost("");
       setImages([]);
       if (fileInputRef.current) {
