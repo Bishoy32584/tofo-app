@@ -55,12 +55,29 @@ console.log("🚨 THIS IS TOFO-APP 🚨");
 
 const PORT = process.env.PORT || 5000;
 
-// 🔹 CORS (MODIFIED)
-const CLIENT_URL = process.env.CLIENT_URL || "https://tofo-app-1aok.vercel.app";
+// 🔹 CORS (UPDATED FIX)
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://tofo-app-1aok.vercel.app",
+  "https://tofo-app-1aok-git-main-b85892710-3254s-projects.vercel.app"
+];
 
 app.use(cors({
-  origin: CLIENT_URL,
-  credentials: true
+  origin: function (origin, callback) {
+
+    // allow non-browser requests
+    if (!origin) return callback(null, true);
+
+    if (
+      allowedOrigins.includes(origin) ||
+      origin.endsWith(".vercel.app")
+    ) {
+      return callback(null, origin);
+    }
+
+    return callback(new Error("CORS blocked: " + origin));
+  },
+  credentials: true,
 }));
 
 // 🔥 مهم جدًا (التعديل هنا فقط)
