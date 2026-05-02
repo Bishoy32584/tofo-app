@@ -40,6 +40,10 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   const token = getAccessToken();
 
+  // ✅ ADDED LOGGING ONLY
+  console.log("➡️ REQUEST:", config.url);
+  console.log("🍪 TOKEN:", token);
+
   if (!config.headers) {
     config.headers = {};
   }
@@ -78,6 +82,11 @@ api.interceptors.response.use(
       return;
     }
 
+    // ✅ NEW: prevent refresh loop
+    if (originalRequest.url?.includes("/auth/refresh-token")) {
+      return Promise.reject(err);
+    }
+
     if (originalRequest._retry && err.response?.status === 401) {
       console.warn("STOPPING REFRESH LOOP");
       setAccessToken(null);
@@ -107,7 +116,10 @@ api.interceptors.response.use(
 
       try {
 
-        const res = await api.post("/api/auth/refresh-token", {});
+        // ✅ FIXED: axios instead of api + withCredentials
+        const res = await axios.post(API + "/api/auth/refresh-token", {}, {
+          withCredentials: true
+        });
 
         const newToken = res.data.accessToken;
 
