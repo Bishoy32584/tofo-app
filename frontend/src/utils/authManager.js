@@ -34,23 +34,22 @@ const api = axios.create({
 });
 
 // =========================
-// Request Interceptor (FIXED)
+// Request Interceptor (UPDATED)
 // =========================
 
 api.interceptors.request.use((config) => {
   const token = getAccessToken();
 
-  // 🔧 FIX 1: ensure headers exists
   if (!config.headers) {
     config.headers = {};
   }
 
-  console.log("➡️ Sending Token:", token);
-
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  if (!token) {
+    console.warn("NO TOKEN - request marked as unauthenticated");
+    return config;
   }
 
+  config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
@@ -74,14 +73,19 @@ api.interceptors.response.use(
   async (err) => {
     const originalRequest = err.config;
 
-    // 🔧 NEW: OVERLOAD HANDLER (ADDED ONLY)
     if (err.response?.status === 503 && err.response?.data?.message === "OVERLOAD") {
       window.location.href = "/overload.html";
       return;
     }
 
+    if (originalRequest._retry && err.response?.status === 401) {
+      console.warn("STOPPING REFRESH LOOP");
+      setAccessToken(null);
+      return Promise.reject(err);
+    }
+
     if (err.response?.status === 401 && !originalRequest._retry) {
-      
+
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           queue.push({
@@ -103,7 +107,6 @@ api.interceptors.response.use(
 
       try {
 
-        // 🔧 FIX 3: use api instead of axios
         const res = await api.post("/api/auth/refresh-token", {});
 
         const newToken = res.data.accessToken;
@@ -174,18 +177,23 @@ export const apiRequest = async (config) => {
 };
 
 // =========================
-// Socket Sync
+// Socket Sync (UPDATED)
 // =========================
+
+let reconnectTimer = null;
 
 export const notifySocket = () => {
   try {
     socket.auth = { token: getAccessToken() };
 
-    if (socket.connected) {
-      socket.disconnect().connect();
-    } else {
+    if (reconnectTimer) clearTimeout(reconnectTimer);
+
+    reconnectTimer = setTimeout(() => {
+      if (socket.connected) {
+        socket.disconnect();
+      }
       socket.connect();
-    }
+    }, 150);
 
   } catch (err) {
     console.log("Socket sync failed", err);

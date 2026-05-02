@@ -1,15 +1,14 @@
-// src/socket.js
-
 import { io } from "socket.io-client";
 
 const SOCKET_URL = "https://tofo-app-production.up.railway.app";
 
-// قراءة التوكن من localStorage
+// 🟢 Socket.IO fix (unchanged logic, فقط إضافة credentials + تحسين stability)
 const socket = io(SOCKET_URL, {
   autoConnect: false,
   auth: {
     token: localStorage.getItem("accessToken")
-  }
+  },
+  withCredentials: true
 });
 
 // 🟢 NEW (after login)
