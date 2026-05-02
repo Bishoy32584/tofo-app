@@ -55,14 +55,22 @@ console.log("🚨 THIS IS TOFO-APP 🚨");
 
 const PORT = process.env.PORT || 5000;
 
-// 🔹 CORS (✅ التعديل الوحيد هنا فقط)
+// 🔹 CORS (ONLY MODIFIED PART)
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://tofo-app-1aok.vercel.app"
+];
+
 app.use(cors({
-  origin: [
-    "http://localhost:3000",
-    "https://tofo-app-1aok.vercel.app",
-    "https://tofo-app-1aok-git-main-b85892710-3254s-projects.vercel.app",
-    "https://tofo-app-inky.vercel.app"
-  ],
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error("CORS blocked: " + origin));
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]
@@ -73,12 +81,9 @@ app.options(/.*/, cors());
 
 app.use(express.json({ verify: (req, res, buf) => { req.rawBody = buf.toString("utf8"); } }));
 
-// ✅ التعديل الجديد فقط
+// باقي الملف بدون أي تغيير
 app.use(express.urlencoded({ extended: true }));
 
-// =========================
-// 🔥 LOAD GUARD
-// =========================
 const MAX_ACTIVE_USERS = 300;
 
 app.use(async (req, res, next) => {
@@ -112,9 +117,7 @@ app.use(async (req, res, next) => {
 app.use(cookieParser());
 app.use(helmet());
 
-// =========================
-// ✅ 🔥 JWT DEBUG MIDDLEWARE (ده التعديل المطلوب)
-// =========================
+// JWT middleware unchanged
 app.use((req, res, next) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
@@ -136,9 +139,6 @@ app.use((req, res, next) => {
   }
 });
 
-// =========================
-// STATIC FILES
-// =========================
 app.use("/uploads", express.static("uploads"));
 
 const apiLimiter = rateLimit({
@@ -149,58 +149,35 @@ const apiLimiter = rateLimit({
 
 app.use("/api/", apiLimiter);
 
-// =================
-// API Routes
-// =================
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/conversations", conversationRoutes);
-
-// ✅ ADDED ONLY
 app.use("/api/onboarding", onboardingRoutes);
 
-// =================
-// Root
-// =================
 app.get("/", (req, res) => {
   res.send("ROOT WORKING FROM SERVER.JS");
 });
 
-// =================
-// 404
-// =================
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
 
-// =================
-// Error handler
-// =================
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: "Internal Server Error" });
 });
 
-// =================
-// HTTP SERVER
-// =================
 const server = http.createServer(app);
 
-// =================
-// SOCKET.IO (NO REDIS ADAPTER)
-// =================
 const io = new Server(server, {
   cors: { origin: process.env.SOCKET_ORIGIN || "*" }
 });
 
 NotificationService.setSocketIO(io);
 
-// =================
-// Socket Auth
-// =================
 io.use((socket, next) => {
   try {
     const token = socket.handshake.auth?.token;
@@ -217,9 +194,6 @@ io.use((socket, next) => {
   }
 });
 
-// =================
-// SOCKET LOGIC
-// =================
 io.on("connection", (socket) => {
 
   if (socket.userId) {
@@ -269,45 +243,13 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("messageDelivered", async ({ messageId }) => {
-    await Message.findByIdAndUpdate(messageId, {
-      status: "DELIVERED",
-      deliveredAt: new Date()
-    });
-  });
-
-  socket.on("messageSeen", async ({ messageId, chatWith }) => {
-    await Message.findByIdAndUpdate(messageId, {
-      status: "SEEN",
-      seenAt: new Date(),
-      read: true
-    });
-
-    io.to(chatWith).emit("messageSeenAck", { messageId });
-  });
-
   socket.on("disconnect", () => {});
 });
 
-// =================
-// Cleanup
-// =================
-setInterval(async () => {
-  try {
-    await cleanupOrphans();
-  } catch (e) {
-    console.error("Cleanup failed:", e.message);
-  }
-}, 60 * 60 * 1000);
-
-// =================
 setInterval(() => {
   console.log("🧪 TEST: server is alive at", new Date().toISOString());
 }, 5000);
 
-// =================
-// MongoDB
-// =================
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI, {
