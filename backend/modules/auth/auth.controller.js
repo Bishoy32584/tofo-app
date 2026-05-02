@@ -58,8 +58,8 @@ const { user, accessToken, refreshToken } = await loginUser({
 // Send refresh token as HttpOnly cookie
 res.cookie("refresh_token", refreshToken, {
   httpOnly: true,
-  secure: false,
-  sameSite: "lax",
+  secure: true,
+  sameSite: "none",
   path: "/",
   maxAge: 7 * 24 * 60 * 60 * 1000
 });
@@ -86,6 +86,10 @@ const refresh = async (req, res) => {
 
 try {
 
+// ✅ DEBUG (المضاف فقط)
+console.log("🍪 COOKIES:", req.cookies);
+console.log("🔐 REFRESH:", req.cookies?.refresh_token);
+
 const oldToken = req.cookies.refresh_token;
 
 if (!oldToken) throw new Error("No refresh token");
@@ -108,8 +112,8 @@ const accessToken = jwt.sign(
 // إرسال refresh token الجديد
 res.cookie("refresh_token", newRefreshToken, {
   httpOnly: true,
-  secure: false,
-  sameSite: "lax",
+  secure: true,
+  sameSite: "none",
   path: "/",
   maxAge: 7 * 24 * 60 * 60 * 1000
 });

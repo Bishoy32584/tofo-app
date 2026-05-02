@@ -55,25 +55,12 @@ console.log("🚨 THIS IS TOFO-APP 🚨");
 
 const PORT = process.env.PORT || 5000;
 
-// 🔹 CORS (ONLY MODIFIED PART)
-const allowedOrigins = [
-  "http://localhost:3000",
-  "https://tofo-app-1aok.vercel.app"
-];
+// 🔹 CORS (MODIFIED)
+const CLIENT_URL = process.env.CLIENT_URL || "https://tofo-app-1aok.vercel.app";
 
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-
-    return callback(new Error("CORS blocked: " + origin));
-  },
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  origin: CLIENT_URL,
+  credentials: true
 }));
 
 // 🔥 مهم جدًا (التعديل هنا فقط)
@@ -117,27 +104,7 @@ app.use(async (req, res, next) => {
 app.use(cookieParser());
 app.use(helmet());
 
-// JWT middleware unchanged
-app.use((req, res, next) => {
-  try {
-    const token = req.headers.authorization?.split(" ")[1];
-
-    console.log("TOKEN:", token);
-
-    if (!token) return next();
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    console.log("DECODED:", decoded);
-
-    req.user = decoded;
-
-    next();
-  } catch (err) {
-    console.log("JWT ERROR:", err.message);
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-});
+// ❌ JWT middleware removed بالكامل
 
 app.use("/uploads", express.static("uploads"));
 
