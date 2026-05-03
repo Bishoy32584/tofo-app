@@ -156,8 +156,23 @@ app.use((err, req, res, next) => {
 
 const server = http.createServer(app);
 
+// ✅🔥 التعديل هنا فقط
 const io = new Server(server, {
-  cors: { origin: process.env.SOCKET_ORIGIN || "*" }
+  cors: {
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+
+      if (
+        allowedOrigins.includes(origin) ||
+        origin.endsWith(".vercel.app")
+      ) {
+        return callback(null, origin);
+      }
+
+      return callback(new Error("CORS blocked: " + origin));
+    },
+    credentials: true
+  }
 });
 
 NotificationService.setSocketIO(io);
