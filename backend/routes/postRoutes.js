@@ -49,6 +49,9 @@ const sightengine = require("sightengine")(
   process.env.SIGHT_SECRET
 );
 
+// 🔥 Cloudinary
+const cloudinary = require("../utils/cloudinary");
+
 // 🔹 Create Post
 router.post(
   "/",
@@ -73,16 +76,39 @@ router.post(
         return res.status(400).json({ message: "Content required" });
       }
 
-      const imageUrls = req.files ? req.files.map(file => file.path) : [];
+      // ==========================
+      // ✅ CLOUDINARY UPLOAD (NEW)
+      // ==========================
+      const imageUrls = [];
+
+      for (const file of req.files || []) {
+
+        const result = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: "tofo-posts" },
+            (error, result) => {
+              if (error) return reject(error);
+              resolve(result);
+            }
+          );
+
+          stream.end(file.buffer);
+        });
+
+        imageUrls.push(result.secure_url);
+      }
 
       let isExplicit = false;
       let explicitScore = 0;
 
-      for (const file of req.files || []) {
+      // ==========================
+      // 🔁 UPDATED LOOP (NEW)
+      // ==========================
+      for (const fileResultUrl of imageUrls) {
 
         const result = await sightengine
           .check(["nudity"])
-          .set_file(file.path);
+          .set_url(fileResultUrl);
 
         const score = result?.nudity?.raw || 0;
 
@@ -127,7 +153,7 @@ router.get("/feed",
   authenticate, feedLimiter, async (req, res) => {
   try {
 
-    console.log("USER ID FROM TOKEN:", req.userId); // ✅ السطر المضاف فقط
+    console.log("USER ID FROM TOKEN:", req.userId);
 
     console.time("TOTAL_FEED");
 
@@ -200,11 +226,11 @@ router.get("/feed",
 });
 
 // ==========================
-// ✅ ADD: Impression Tracking
+// Impression Tracking
 // ==========================
-router.post("/impression",
-  authenticate, async (req, res) => {
+router.post("/impression", authenticate, async (req, res) => {
   try {
+
     const { postId } = req.body;
 
     if (!postId) {
@@ -238,7 +264,6 @@ router.post("/impression",
       { upsert: true }
     );
 
-    // 🟢 NEW
     invalidateFeed(req.userId);
 
     res.sendStatus(200);
@@ -250,11 +275,11 @@ router.post("/impression",
 });
 
 // ==========================
-// ✅ ADD: View Tracking
+// View Tracking
 // ==========================
-router.post("/view",
-  authenticate, async (req, res) => {
+router.post("/view", authenticate, async (req, res) => {
   try {
+
     const { postId, duration } = req.body;
 
     if (!postId) {
@@ -290,7 +315,6 @@ router.post("/view",
       { upsert: true }
     );
 
-    // 🟢 NEW
     invalidateFeed(req.userId);
 
     res.sendStatus(200);
@@ -302,11 +326,11 @@ router.post("/view",
 });
 
 // ==========================
-// ✅ UPDATE: Hug Tracking
+// Hug Tracking
 // ==========================
-router.post("/hug",
-  authenticate, async (req, res) => {
+router.post("/hug", authenticate, async (req, res) => {
   try {
+
     const { postId } = req.body;
 
     if (!postId) {
@@ -336,7 +360,6 @@ router.post("/hug",
       { upsert: true }
     );
 
-    // 🟢 NEW
     invalidateFeed(req.userId);
 
     res.sendStatus(200);
@@ -347,9 +370,10 @@ router.post("/hug",
   }
 });
 
-// 🔹 Delete Post (owner only)
+// Delete Post
 router.delete("/:id", authenticate, async (req, res) => {
   try {
+
     const deleted = await Post.findOneAndDelete({
       _id: req.params.id,
       user: req.userId
@@ -359,7 +383,6 @@ router.delete("/:id", authenticate, async (req, res) => {
       return res.status(404).json({ message: "Post not found or unauthorized" });
     }
 
-    // keep existing cache strategy + clear global snapshot
     invalidateFeed(req.userId);
     clearGlobalFeedCache();
 
@@ -367,6 +390,7 @@ router.delete("/:id", authenticate, async (req, res) => {
       success: true,
       postId: String(deleted._id)
     });
+
   } catch (err) {
     console.error("Delete Post Error:", err);
     res.status(500).json({ message: "Server Error" });
