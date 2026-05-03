@@ -193,49 +193,32 @@ io.use((socket, next) => {
   }
 });
 
+// ✅ التعديل المضاف هنا
+const { sendMessage } = require("./services/messageService");
+
 io.on("connection", (socket) => {
 
   if (socket.userId) {
     socket.join(socket.userId);
   }
 
-  socket.on("sendMessage", async ({ receiver, content, chatId, tempId }) => {
+  // ✅ التعديل الكامل هنا
+  socket.on("sendMessage", async ({ receiver, content, tempId }) => {
     try {
       const sender = socket.userId;
 
-      const message = new Message({
+      const { message } = await sendMessage({
         sender,
         receiver,
-        content,
-        status: "SENT"
+        content
       });
-
-      const saved = await message.save();
-
-      const participants = [sender, receiver].sort();
-
-      let conversation = await Conversation.findOne({
-        participants: { $all: participants }
-      });
-
-      if (!conversation) {
-        conversation = new Conversation({ participants, unread: {} });
-      }
-
-      conversation.lastMessage = content;
-      conversation.lastMessageAt = new Date();
-      const receiverUnread = conversation.unread?.get(receiver.toString()) || 0;
-      conversation.unread.set(receiver.toString(), receiverUnread + 1);
-      conversation.unread.set(sender.toString(), 0);
-
-      await conversation.save();
 
       io.to(sender).emit("messageConfirmed", {
         tempId,
-        message: saved
+        message
       });
 
-      io.to(receiver).emit("newMessage", saved);
+      io.to(receiver).emit("newMessage", message);
 
     } catch (err) {
       console.error(err);

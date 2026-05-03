@@ -6,6 +6,9 @@ const mongoose = require("mongoose");
 // ✅ التعديل (لازم يتضاف علشان نستخدمه)
 const UserBehavior = require("../models/UserBehavior");
 
+// ✍️ خطوة 11: إضافة service
+const { sendMessage } = require("../services/messageService");
+
 const authenticate = require("../modules/auth/auth.middleware");
 
 // TEST ROUTE
@@ -77,15 +80,13 @@ router.post("/", authenticate, async (req, res) => {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
-    const newMessage = new Message({
+    // ❌ تم حذف newMessage + save
+    // ✍️ استبداله بالـ service
+    const { message } = await sendMessage({
       sender,
       receiver,
-      content,
-      mood,
-      isAnonymous,
+      content
     });
-
-    await newMessage.save();
 
     // ✅ التعديل هنا
     await UserBehavior.findOneAndUpdate(
@@ -94,7 +95,8 @@ router.post("/", authenticate, async (req, res) => {
       { upsert: true }
     );
 
-    res.status(201).json(newMessage);
+    // ✍️ الرد الجديد
+    res.status(201).json(message);
 
   } catch (err) {
     console.error("POST /messages error:", err);
