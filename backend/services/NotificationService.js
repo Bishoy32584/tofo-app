@@ -36,25 +36,41 @@ class NotificationService {
 
       // 🔹 إرسال real-time notification عبر Socket.io
       if (NotificationService.ioInstance) {
-        NotificationService.ioInstance.to(userId).emit("newNotification", savedNotification);
+        NotificationService.ioInstance
+          .to(userId.toString())
+          .emit("newNotification", savedNotification);
       }
 
       // =========================
-      // 🔹 إرسال Web Push Notification
+      // 🔹 إرسال Web Push Notification مع cleanup
       // =========================
       const user = await User.findById(userId);
+
       if (user?.subscriptions?.length > 0) {
-        user.subscriptions.forEach(sub => {
-          webPush.sendNotification(
-            sub,
-            JSON.stringify({
-              title: 'TOFO Notification',
-              message,
-              url: type === 'message' && senderId ? `/chat/${senderId}` : '/',
-              tag: type
-            })
-          ).catch(err => console.error('Push send error:', err));
-        });
+
+        // ✅ Promise.allSettled بدل forEach — مش هيوقف لو subscription فشلت
+        const results = await Promise.allSettled(
+          user.subscriptions.map(sub =>
+            webPush.sendNotification(
+              sub,
+              JSON.stringify({
+                title: 'TOFO Notification',
+                message,
+                url: type === 'message' && chatId ? `/chat/${chatId}` : '/',
+                tag: type
+              })
+            )
+          )
+        );
+
+        // ✅ حذف الـ subscriptions الفاشلة (expired)
+        const validSubs = user.subscriptions.filter((_, i) =>
+          results[i].status === "fulfilled"
+        );
+
+        if (validSubs.length !== user.subscriptions.length) {
+          await User.findByIdAndUpdate(userId, { subscriptions: validSubs });
+        }
       }
 
       return savedNotification;

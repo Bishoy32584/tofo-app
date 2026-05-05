@@ -17,7 +17,9 @@ const scorePost = (post, userBehavior) => {
   }
 
   // Views penalty
-  const isViewed = userBehavior?.viewedPosts?.includes(post._id?.toString());
+  const isViewed = userBehavior?.viewedPosts?.some(
+    id => id.toString() === post._id?.toString()
+  );
   if (isViewed) score -= 50;
 
   // Hug preference

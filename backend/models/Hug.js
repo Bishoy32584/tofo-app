@@ -6,6 +6,6 @@ const hugSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // 🟢 NEW
-hugSchema.index({ userId: 1, postId: 1 });
+hugSchema.index({ userId: 1, postId: 1 }, { unique: true });
 
 module.exports = mongoose.model("Hug", hugSchema);

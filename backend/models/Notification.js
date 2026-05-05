@@ -26,6 +26,12 @@ const notificationSchema = new mongoose.Schema({
     ref: "User"
   },
 
+  // ✅ إضافة chatId — بيحدد الشات اللي المفروض يفتح
+  chatId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User"
+  },
+
   message: {
     type: String
   },

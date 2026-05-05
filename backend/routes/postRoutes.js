@@ -138,8 +138,14 @@ router.post(
       res.status(201).json(post);
 
     } catch (err) {
-      console.error("Create Post Error:", err);
-      res.status(500).json({ message: "Server Error" });
+
+      // ✅ التعديل الوحيد هنا
+      console.error("❌ POST ERROR:", err);
+
+      return res.status(500).json({
+        message: "POST_FAILED",
+        error: err.message
+      });
     }
   }
 );
@@ -159,7 +165,8 @@ router.get("/feed",
 
     const cacheKey = `feed:${req.userId}`;
 
-    const cached = cache.get(cacheKey);
+    // ✅ cache fix
+    const cached = await cache.get(cacheKey);
     if (cached && cached.length > 0) {
       console.timeEnd("TOTAL_FEED");
       return res.json(cached);
@@ -213,7 +220,8 @@ router.get("/feed",
 
     pendingRequests.delete(cacheKey);
 
-    cache.set(cacheKey, result, 10);
+    // ✅ cache fix
+    await cache.set(cacheKey, result, 10);
 
     console.timeEnd("TOTAL_FEED");
 
@@ -335,6 +343,15 @@ router.post("/hug", authenticate, async (req, res) => {
 
     if (!postId) {
       return res.status(400).json({ message: "postId required" });
+    }
+
+    const existingHug = await Hug.findOne({
+      userId: req.userId,
+      postId
+    });
+
+    if (existingHug) {
+      return res.status(200).json({ alreadyHugged: true });
     }
 
     await Hug.create({

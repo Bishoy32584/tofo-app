@@ -80,6 +80,12 @@ const userSchema = new mongoose.Schema({
   profileImage: {
     type: String,
     default: ""
+  },
+
+  // ✅ إضافة subscriptions للـ Web Push
+  subscriptions: {
+    type: [mongoose.Schema.Types.Mixed],
+    default: []
   }
 
 });

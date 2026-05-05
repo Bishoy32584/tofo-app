@@ -64,17 +64,13 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function (origin, callback) {
-
-    // allow non-browser requests
     if (!origin) return callback(null, true);
-
     if (
       allowedOrigins.includes(origin) ||
       origin.endsWith(".vercel.app")
     ) {
       return callback(null, origin);
     }
-
     return callback(new Error("CORS blocked: " + origin));
   },
   credentials: true,
@@ -100,10 +96,7 @@ app.use(async (req, res, next) => {
 
     if (current > MAX_ACTIVE_USERS) {
       await cache.decr("active_requests");
-
-      return res.status(503).json({
-        message: "OVERLOAD"
-      });
+      return res.status(503).json({ message: "OVERLOAD" });
     }
 
     res.on("finish", async () => {
@@ -161,14 +154,12 @@ const io = new Server(server, {
   cors: {
     origin: function (origin, callback) {
       if (!origin) return callback(null, true);
-
       if (
         allowedOrigins.includes(origin) ||
         origin.endsWith(".vercel.app")
       ) {
         return callback(null, origin);
       }
-
       return callback(new Error("CORS blocked: " + origin));
     },
     credentials: true
@@ -180,14 +171,10 @@ NotificationService.setSocketIO(io);
 io.use((socket, next) => {
   try {
     const token = socket.handshake.auth?.token;
-
     if (!token) return next(new Error("Authentication error: No token"));
-
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
     socket.userId = decoded.id;
     next();
-
   } catch (err) {
     return next(new Error("Authentication error: " + err.message));
   }
@@ -220,8 +207,57 @@ io.on("connection", (socket) => {
 
       io.to(receiver).emit("newMessage", message);
 
+      // ✅ إضافة Notification للـ receiver
+      await NotificationService.createNotification({
+        userId: receiver,
+        type: "message",
+        senderId: sender,
+        chatId: sender, // ← /chat/senderId هيفتح الشات الصح
+        message: "رسالة جديدة"
+      });
+
     } catch (err) {
       console.error(err);
+    }
+  });
+
+  // ✅ NEW: messageSeen handler (الإضافة الوحيدة)
+  socket.on("messageSeen", async ({ messageId, chatWith }) => {
+    try {
+
+      const userId = socket.userId;
+
+      await Message.updateOne(
+        { _id: messageId, receiver: userId },
+        { status: "SEEN" }
+      );
+
+      await Message.updateMany(
+        {
+          sender: chatWith,
+          receiver: userId,
+          status: { $ne: "SEEN" }
+        },
+        { status: "SEEN" }
+      );
+
+      const participants = [userId, chatWith].sort();
+
+      const conversation = await Conversation.findOne({
+        participants: { $all: participants }
+      });
+
+      if (conversation) {
+        conversation.unread.set(userId.toString(), 0);
+        await conversation.save();
+      }
+
+      io.to(chatWith).emit("messagesSeen", {
+        by: userId
+      });
+
+    } catch (err) {
+      console.error("messageSeen error:", err);
     }
   });
 
