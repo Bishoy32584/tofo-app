@@ -133,19 +133,35 @@ function Chat() {
       });
     };
 
+    // ✅ NEW: messagesSeen listener
+    const onMessagesSeen = ({ by }) => {
+      if (String(by) === String(id)) {
+        setMessages(prev =>
+          prev.map(msg =>
+            msg.sender === "You"
+              ? { ...msg, status: "SEEN" }
+              : msg
+          )
+        );
+      }
+    };
+
     // ✅ prevent duplicate listeners
     socket.off("newMessage");
     socket.off("messageConfirmed");
     socket.off("connect_error");
+    socket.off("messagesSeen");
 
     socket.on("newMessage", onNewMessage);
     socket.on("messageConfirmed", onMessageConfirmed);
     socket.on("connect_error", onConnectError);
+    socket.on("messagesSeen", onMessagesSeen);
 
     return () => {
       socket.off("newMessage", onNewMessage);
       socket.off("messageConfirmed", onMessageConfirmed);
       socket.off("connect_error", onConnectError);
+      socket.off("messagesSeen", onMessagesSeen);
     };
   }, [id, currentUserId]); // ✅ FIXED
 
@@ -156,25 +172,23 @@ function Chat() {
   }, [conversation]);
 
   // =========================
-  // SEEN LOGIC (FIXED)
+  // SEEN LOGIC (FIXED - NO SPAM)
   // =========================
   useEffect(() => {
-    const seenIds = new Set();
 
-    messages.forEach(msg => {
-      if (
-        msg.sender !== "You" &&
-        msg.id &&
-        !seenIds.has(msg.id)
-      ) {
-        seenIds.add(msg.id);
+    const unseen = messages.filter(
+      msg => msg.sender !== "You"
+    );
 
-        socket.emit("messageSeen", {
-          messageId: msg.id,
-          chatWith: id
-        });
-      }
+    if (unseen.length === 0) return;
+
+    const lastMessage = unseen[unseen.length - 1];
+
+    socket.emit("messageSeen", {
+      messageId: lastMessage.id,
+      chatWith: id
     });
+
   }, [id, messages]);
 
   // Scroll تلقائي

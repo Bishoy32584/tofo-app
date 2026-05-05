@@ -136,28 +136,36 @@ const Home = () => {
         formData.append("images", images[i]);
       }
 
-      await apiRequest({
-        method: "POST",
-        url: `${API}/api/posts`,
-        data: formData
-      });
+      // ✅ التعديل هنا فقط
+      try {
+        const res = await apiRequest({
+          method: "POST",
+          url: `${API}/api/posts`,
+          data: formData
+        });
 
-      // ✅ التعديل الوحيد هنا
-      window.dispatchEvent(
-        new CustomEvent("feed-update", {
-          detail: { action: "new-post" }
-        })
-      );
+        if (!res || res.status >= 400) {
+          throw new Error("Post failed");
+        }
 
-      setMyPost("");
-      setImages([]);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
+        window.dispatchEvent(
+          new CustomEvent("feed-update", {
+            detail: { action: "new-post" }
+          })
+        );
+
+        setMyPost("");
+        setImages([]);
+        if (fileInputRef.current) fileInputRef.current.value = "";
+        setIsAnonymous(false);
+        setSelectedMood(moods[0]);
+
+        fetchPosts();
+
+      } catch (err) {
+        console.error("POST FAILED:", err.response?.data || err.message);
+        alert("فشل نشر البوست — تحقق من الاتصال أو الصور");
       }
-      setIsAnonymous(false);
-      setSelectedMood(moods[0]);
-
-      fetchPosts();
 
     } catch (err) {
       console.error("Send post error:", err);
@@ -166,11 +174,13 @@ const Home = () => {
 
   const handleHug = async (id) => {
     try {
-      await apiRequest({
+      const res = await apiRequest({
         method: "POST",
         url: `${API}/api/posts/hug`,
         data: { postId: id }
       });
+
+      if (res.data?.alreadyHugged) return;
 
       setPosts(prev =>
         prev.map(p =>
@@ -285,9 +295,15 @@ const Home = () => {
             <PostCard
               key={post._id}
               post={post}
-              timeAgo={(d) =>
-                Math.floor((Date.now() - new Date(d)) / 60000) + " دقيقة"
-              }
+              timeAgo={(d) => {
+                const diff = Date.now() - new Date(d);
+                const mins = Math.floor(diff / 60000);
+                if (mins < 1) return "الآن";
+                if (mins < 60) return `${mins} دقيقة`;
+                const hrs = Math.floor(mins / 60);
+                if (hrs < 24) return `${hrs} ساعة`;
+                return `${Math.floor(hrs / 24)} يوم`;
+              }}
               handleHug={handleHug}
               handleShare={handleShare}
               getUserId={getUserId}

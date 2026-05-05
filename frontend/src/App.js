@@ -103,9 +103,9 @@ function App() {
 
         if (res.data.accessToken) {
           setAccessToken(res.data.accessToken);
-
-          socket.auth = { token: res.data.accessToken };
-          socket.disconnect().connect();
+          // ✅ حذفنا socket.disconnect().connect()
+          // setAccessToken بيعمل authChanged event
+          // و notifySocket في authManager بيتولى الـ socket بشكل أذكى
         }
 
       } catch (err) {

@@ -1,31 +1,62 @@
 import React, { useEffect, useState } from "react";
+import { apiRequest } from "../utils/authManager"; // ✅ إضافة
 
 function Notifications({ notifications: propNotifications }) {
 
   const [notifications, setNotifications] = useState([]);
 
+  // ✅ جلب الـ notifications من الـ DB عند أول render
   useEffect(() => {
-    // 🔹 مزامنة state من App.js
-    setNotifications(propNotifications);
+    const fetchNotifications = async () => {
+      try {
+        const res = await apiRequest({
+          method: "GET",
+          url: "/api/notifications"
+        });
+        if (Array.isArray(res.data)) {
+          setNotifications(res.data);
+        }
+      } catch (err) {
+        console.error("Fetch notifications error:", err);
+      }
+    };
+
+    fetchNotifications();
+  }, []);
+
+  // ✅ مزامنة الـ real-time notifications من App.js
+  useEffect(() => {
+    if (propNotifications?.length > 0) {
+      setNotifications(prev => {
+        const existingIds = new Set(prev.map(n => n._id));
+        const newOnes = propNotifications.filter(n => !existingIds.has(n._id));
+        return [...newOnes, ...prev];
+      });
+    }
   }, [propNotifications]);
 
-  // -----------------------------
-  // UI + click behavior
-  // -----------------------------
-  const handleClick = (n) => {
+  // ✅ mark-read في الـ DB + تحديث الـ UI
+  const handleClick = async (n) => {
     if (n.type === "message" && n.chatId) {
-      // ⚡ افتح الشات مع chatId الصحيح
       window.location.href = `/chat/${n.chatId}`;
     }
 
-    // ✅ علامة كـ read + تحديث الـ UI
+    // ✅ تحديث الـ UI فوراً
     setNotifications(prev =>
       prev.map(item =>
         item._id === n._id ? { ...item, read: true } : item
       )
     );
 
-    // ⚡ لو عايزين ممكن هنا نرسل update للـ backend لتخزين read = true
+    // ✅ حفظ في الـ DB
+    try {
+      await apiRequest({
+        method: "PATCH",
+        url: "/api/notifications/mark-read"
+      });
+    } catch (err) {
+      console.error("Mark read error:", err);
+    }
   };
 
   return (
