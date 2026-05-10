@@ -1,98 +1,151 @@
 const mongoose = require("mongoose");
 
 // 🔹 Schema لتخزين refresh tokens
+
 const refreshTokenSchema = new mongoose.Schema({
-  token: String,
-  jti: String,
-  deviceInfo: String,
-  expiresAt: Date,
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  revoked: {
-    type: Boolean,
-    default: false
-  }
+
+token: String,
+
+jti: String,
+
+deviceInfo: String,
+
+expiresAt: Date,
+
+createdAt: {
+
+type: Date,
+
+default: Date.now
+
+},
+
+revoked: {
+
+type: Boolean,
+
+default: false
+
+}
+
 });
 
 // 🔹 Schema المستخدم الرئيسي (موحد)
+
 const userSchema = new mongoose.Schema({
 
-  // ✅ من السيستم القديم
-  name: {
-    type: String
-  },
+// ✅ من السيستم القديم
 
-  mood: {
-    type: String
-  },
+name: {
 
-  password: {
-    type: String
-  },
+type: String
 
-  // ✅ من نظام الـ auth
-  username: {
-    type: String,
-    unique: true,
-    sparse: true
-  },
+},
 
-  passwordHash: {
-    type: String
-  },
+mood: {
 
-  role: {
-    type: String,
-    default: "user"
-  },
+type: String
 
-  // ✅ مشترك
-  email: {
-    type: String,
-    unique: true,
-    sparse: true
-  },
+},
 
-  isVerified: {
-    type: Boolean,
-    default: false
-  },
+password: {
 
-  refreshTokens: [refreshTokenSchema],
+type: String
 
-  lastLogin: {
-    type: Date
-  },
+},
 
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
+// ✅ من نظام الـ auth
 
-  updatedAt: {
-    type: Date,
-    default: Date.now
-  },
+username: {
 
-  // ✅ ADDED ONLY
-  profileImage: {
-    type: String,
-    default: ""
-  },
+type: String,
 
-  // ✅ إضافة subscriptions للـ Web Push
-  subscriptions: {
-    type: [mongoose.Schema.Types.Mixed],
-    default: []
-  }
+unique: true,
+
+sparse: true
+
+},
+
+role: {
+
+type: String,
+
+default: "user"
+
+},
+
+// ✅ مشترك
+
+email: {
+
+type: String,
+
+unique: true,
+
+sparse: true
+
+},
+
+isVerified: {
+
+type: Boolean,
+
+default: false
+
+},
+
+refreshTokens: [refreshTokenSchema],
+
+lastLogin: {
+
+type: Date
+
+},
+
+createdAt: {
+
+type: Date,
+
+default: Date.now
+
+},
+
+updatedAt: {
+
+type: Date,
+
+default: Date.now
+
+},
+
+// ✅ ADDED ONLY
+
+profileImage: {
+
+type: String,
+
+default: ""
+
+},
+
+// ✅ إضافة subscriptions للـ Web Push
+
+subscriptions: {
+
+type: [mongoose.Schema.Types.Mixed],
+
+default: []
+
+}
 
 });
 
 // 🔹 تحديث تلقائي لـ updatedAt (FIX)
+
 userSchema.pre("save", async function () {
-  this.updatedAt = Date.now();
+
+this.updatedAt = Date.now();
+
 });
 
 module.exports = mongoose.model("User", userSchema);

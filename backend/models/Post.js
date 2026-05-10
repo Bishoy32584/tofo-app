@@ -34,8 +34,8 @@ const parseAnalysis = (analysisInput) => {
   if (!analysisInput) return undefined;
 
   try {
-    const parsed = typeof analysisInput === "string" 
-      ? JSON.parse(analysisInput) 
+    const parsed = typeof analysisInput === "string"
+      ? JSON.parse(analysisInput)
       : analysisInput;
 
     if (parsed && typeof parsed !== "object") {
@@ -64,7 +64,7 @@ const processUploadedImages = (files) => {
 
   return files.map(file => {
     const fileUrl = file.path || file.url || file.location;
-    
+
     if (!fileUrl) {
       throw new StorageError("INVALID_FILE_STORAGE_FORMAT: No path or url in multer file object");
     }
@@ -78,13 +78,13 @@ const processUploadedImages = (files) => {
 // ================================
 
 router.post("/", upload.array("images", 12), async (req, res) => {
-  const requestId = `req_\( {Date.now()}_ \){Math.random().toString(36).substr(2, 6)}`;
+  const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
 
   try {
-    console.log(`[${requestId}] NEW POST | User: ${req.user?._id}`);
+    console.log(`[${requestId}] NEW POST | User: ${req.userId}`);
 
     // Auth Guard
-    if (!req.user?._id) {
+    if (!req.userId) {
       return res.status(401).json({
         success: false,
         message: "UNAUTHORIZED"
@@ -114,16 +114,16 @@ router.post("/", upload.array("images", 12), async (req, res) => {
     const analysisData = parseAnalysis(analysis);
 
     // Tags
-    const tagsArray = tags 
-      ? (Array.isArray(tags) 
-          ? tags 
-          : typeof tags === "string" 
+    const tagsArray = tags
+      ? (Array.isArray(tags)
+          ? tags
+          : typeof tags === "string"
             ? tags.split(",").map(t => t.trim()).filter(Boolean)
             : [])
       : [];
 
     const newPost = new Post({
-      user: req.user._id,
+      user: req.userId,
       content: content?.trim() || "",
       mood: mood || undefined,
       emotion: emotion || undefined,
@@ -135,7 +135,7 @@ router.post("/", upload.array("images", 12), async (req, res) => {
     });
 
     await newPost.save();
-    await newPost.populate("user", "username name avatar");
+    await newPost.populate("user", "username name profileImage");
 
     console.log(`[${requestId}] POST CREATED SUCCESSFULLY | ID: ${newPost._id}`);
 
