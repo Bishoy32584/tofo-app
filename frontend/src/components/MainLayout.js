@@ -5,6 +5,9 @@ import { AiOutlineHome } from "react-icons/ai";
 import { FiMessageCircle } from "react-icons/fi";
 import { IoNotificationsOutline } from "react-icons/io5";
 
+// ✅ التعديل الوحيد: إضافة apiRequest
+import { apiRequest } from "../utils/authManager";
+
 function MainLayout({ notifications: propNotifications }) {
 
   const navigate = useNavigate();
@@ -28,15 +31,13 @@ function MainLayout({ notifications: propNotifications }) {
     const fetchUnread = async () => {
       try {
 
-        const token = localStorage.getItem("accessToken");
-
-        const res = await fetch("https://tofo-app-production.up.railway.app/api/conversations", {
-          headers: {
-            Authorization: token ? "Bearer " + token : ""
-          }
+        // ✅ التعديل الوحيد هنا
+        const res = await apiRequest({
+          method: "GET",
+          url: "/api/conversations"
         });
 
-        const data = await res.json();
+        const data = res.data;
 
         const userId = localStorage.getItem("currentUserId");
 
@@ -62,17 +63,13 @@ function MainLayout({ notifications: propNotifications }) {
   useEffect(() => {
     if (location.pathname === "/notifications") {
 
-      const token = localStorage.getItem("accessToken");
-
-      fetch("https://tofo-app-production.up.railway.app/api/notifications/mark-read", {
+      // ✅ التعديل الوحيد هنا
+      apiRequest({
         method: "PATCH",
-        headers: {
-          Authorization: token ? "Bearer " + token : ""
-        }
+        url: "/api/notifications/mark-read"
       })
-        .then(res => res.json())
-        .then(data => {
-          console.log("✅ Mark notifications as read:", data);
+        .then(res => {
+          console.log("✅ Mark notifications as read:", res.data);
           setUnreadNotifications(0);
         })
         .catch(err => console.error("❌ Mark notifications failed", err));

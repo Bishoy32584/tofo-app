@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import socket from "./socket";
 import { apiRequest } from "./utils/authManager";
 import Login from "./pages/Login";
-import { setAccessToken, getAccessToken } from "./utils/authManager";
+import { setAccessToken, getAccessToken, notifySocket } from "./utils/authManager";
 
 // ✅ STEP 5 — إضافة i18n (فقط إضافة)
 import { getTranslations } from "./i18n";
@@ -62,9 +62,8 @@ function App() {
           setAccessToken(res.data.accessToken);
           console.log("🔄 Access token refreshed");
 
-          socket.auth = { token: res.data.accessToken };
+          notifySocket();
 
-          socket.connect();
           console.log("✅ Socket connected with token");
         }
 
