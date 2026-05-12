@@ -10,9 +10,11 @@ const authenticate = (req, res, next) => {
     const authHeader = req.headers.authorization;
     console.log("🔹 AUTH HEADER:", authHeader);
 
-    if (!authHeader) {
+    if (!authHeader?.startsWith("Bearer ")) {
       console.log("❌ NO AUTH HEADER");
-      return res.status(401).json({ message: "No token provided" });
+      return res.status(401).json({
+        message: "No token provided"
+      });
     }
 
     const token = authHeader.split(" ")[1];
@@ -20,19 +22,31 @@ const authenticate = (req, res, next) => {
 
     if (!token) {
       console.log("❌ TOKEN FORMAT WRONG");
-      return res.status(401).json({ message: "Invalid token format" });
+      return res.status(401).json({
+        message: "Invalid token format"
+      });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET
+    );
+
     console.log("✅ DECODED:", decoded);
 
+    // ✅ توحيد الـ auth shape
     req.userId = decoded.id;
+    req.user = decoded;
 
     next();
 
   } catch (err) {
+
     console.log("❌ JWT ERROR:", err.message);
-    return res.status(401).json({ message: "Unauthorized" });
+
+    return res.status(401).json({
+      message: "Unauthorized"
+    });
   }
 };
 
