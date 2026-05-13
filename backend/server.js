@@ -56,28 +56,46 @@ console.log("🚨 THIS IS TOFO-APP 🚨");
 const PORT = process.env.PORT || 5000;
 
 // 🔹 CORS (UPDATED FIX)
-const allowedOrigins = [
-  "http://localhost:3000",
-  "https://tofo-app-1aok.vercel.app",
-  "https://tofo-app-1aok-git-main-b85892710-3254s-projects.vercel.app"
-];
-
-app.use(cors({
+const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    if (
-      allowedOrigins.includes(origin) ||
-      origin.endsWith(".vercel.app")
-    ) {
-      return callback(null, origin);
-    }
-    return callback(new Error("CORS blocked: " + origin));
-  },
-  credentials: true,
-}));
 
-// 🔥 مهم جدًا (التعديل هنا فقط)
-app.options(/.*/, cors());
+    // requests من mobile apps أو postman
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    const allowedOrigins = [
+      "http://localhost:3000",
+      "https://tofo-app-1aok.vercel.app",
+      "https://tofo-app-1aok-git-main-b85892710-3254s-projects.vercel.app"
+    ];
+
+    const isAllowed =
+      allowedOrigins.includes(origin) ||
+      origin.endsWith(".vercel.app");
+
+    if (isAllowed) {
+      return callback(null, true);
+    }
+
+    console.log("❌ BLOCKED ORIGIN:", origin);
+
+    return callback(new Error("Not allowed by CORS"));
+  },
+
+  credentials: true,
+
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization"
+  ]
+};
+
+app.use(cors(corsOptions));
+
+app.options("*", cors(corsOptions));
 
 app.use(express.json({ verify: (req, res, buf) => { req.rawBody = buf.toString("utf8"); } }));
 
@@ -151,19 +169,7 @@ const server = http.createServer(app);
 
 // ✅🔥 التعديل هنا فقط
 const io = new Server(server, {
-  cors: {
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
-      if (
-        allowedOrigins.includes(origin) ||
-        origin.endsWith(".vercel.app")
-      ) {
-        return callback(null, origin);
-      }
-      return callback(new Error("CORS blocked: " + origin));
-    },
-    credentials: true
-  }
+  cors: corsOptions
 });
 
 NotificationService.setSocketIO(io);
