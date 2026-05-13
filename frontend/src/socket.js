@@ -4,11 +4,7 @@ const SOCKET_URL = "https://tofo-app-production.up.railway.app";
 
 // 🟢 Socket.IO fix (unchanged logic, فقط إضافة credentials + تحسين stability)
 const socket = io(SOCKET_URL, {
-  autoConnect: false,
-  auth: {
-    token: localStorage.getItem("accessToken")
-  },
-  withCredentials: true
+  cors: corsOptions
 });
 
 // 🟢 NEW (after login)
