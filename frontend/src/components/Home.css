@@ -168,7 +168,7 @@ input:checked + .slider:before {
    ========================================================================== */
 
 .file-upload-wrapper {
-  display: none;
+  display: none !important;
 }
 
 .file-upload-wrapper input[type="file"] {
