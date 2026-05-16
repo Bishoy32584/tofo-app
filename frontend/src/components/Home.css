@@ -168,11 +168,7 @@ input:checked + .slider:before {
    ========================================================================== */
 
 .file-upload-wrapper {
-  margin-top: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  display: none;
 }
 
 .file-upload-wrapper input[type="file"] {
